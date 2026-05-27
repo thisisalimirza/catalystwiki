@@ -1,0 +1,112 @@
+---
+title: "Defining Your MVP"
+section: your-project
+icon: target
+updatedAt: "May 27, 2026"
+published: true
+order: 3
+---
+
+Your MVP — Minimum Viable Product — is the smallest, simplest version of your solution that genuinely demonstrates value. Getting this definition right is the most important decision you'll make in the fellowship.
+
+## What MVP actually means
+
+MVP is often misunderstood. Let's clear it up:
+
+**MVP does NOT mean:**
+- A rough wireframe with no functionality
+- A slide deck saying "this is what we'll build"
+- A half-finished product with broken features
+
+**MVP DOES mean:**
+- A working product (even if simple) that does one thing well
+- Something a real user could actually use to accomplish a task
+- Something that demonstrates your core value proposition end-to-end
+
+The "minimum" in MVP means minimum features — not minimum quality in the core experience.
+
+<Callout type="tip" title="The skateboard analogy">
+Building a car? Your MVP isn't a car with no wheels. It's a skateboard — a different, simpler form of transportation that actually works. Then a scooter. Then a bike. Then a car. Each version is complete and usable, just simpler.
+</Callout>
+
+## How to scope your MVP
+
+### Step 1: Write the core user story
+
+A user story follows this format: **"As a [user], I want to [do something], so that [outcome]."**
+
+Example: "As an ICU nurse, I want to generate a structured handoff summary from my notes, so that I can complete shift change in under 5 minutes without missing critical information."
+
+This single sentence defines what you're building. Everything in your MVP should serve this story. Anything that doesn't serve it directly is out of scope.
+
+### Step 2: List every feature you're tempted to build
+
+Write them all down. This is your "full vision" list. For a clinical handoff tool, it might include:
+- AI-generated handoff summaries
+- Integration with the hospital EHR
+- Real-time vital sign alerts
+- Team chat within the handoff tool
+- Patient photos
+- Medication reconciliation
+- A mobile app
+- Voice input
+- Analytics dashboard for charge nurses
+
+### Step 3: Cut ruthlessly
+
+Circle the ONE feature that is the core of your value proposition. Everything else is a later version.
+
+For the handoff tool, that's probably: **AI-generated handoff summaries**. Everything else can wait.
+
+**Questions to cut features:**
+- "Could a user get value from the product without this feature?" — If yes, cut it.
+- "Would this feature take more than 1 week to build?" — If yes, cut it or simplify it.
+- "Does this feature require integrations I don't have?" — If yes, cut it (EHR integrations are 6-month projects, not 6-week ones).
+
+### Step 4: Define what "done" looks like
+
+Write 3–5 sentences describing what your MVP does when it's complete. Be concrete. What does the user type in? What does it output? What does the screen look like?
+
+Example:
+> The user pastes their clinical notes into a text box. They click "Generate Handoff." Within 10 seconds, the tool returns a structured handoff note organized by the SBAR format (Situation, Background, Assessment, Recommendation). The user can copy the output to paste into their EHR or handoff sheet. There is no login required for the MVP.
+
+This description lets you know exactly when you're done.
+
+## Common scoping mistakes
+
+**The "one more feature" trap.** Every feature sounds important in isolation. Stay ruthless. Add features only after your core flow is working.
+
+**Building for edge cases first.** Design for the happy path — the most common, ideal case — and handle edge cases later. "What if the input is in a foreign language?" is a week 9 question.
+
+**EHR integrations.** Almost every healthcare project eventually wants to pull data from the EHR. Integrations with Epic, Cerner, etc. require vendor agreements, developer credentialing, and months of work. For your MVP, simulate EHR data with copy-paste. Solve the real problem first; the integration comes later.
+
+**Mobile-first when web is fine.** Building a native iOS/Android app adds enormous complexity. A mobile-friendly web app gets you 90% of the way there with 10% of the effort.
+
+**User authentication.** Unless your app absolutely requires login (because it stores patient data per user), skip it for the MVP. Let anyone access it. Add login later.
+
+## Reality check: what can you build in 6 weeks?
+
+Here's what Catalyst teams with mixed technical backgrounds have built in 6 weeks:
+
+| Example project | What it does | How it was built |
+|---|---|---|
+| Clinical note summarizer | Physician pastes notes; AI returns a structured summary | Claude API + Bubble frontend |
+| Patient education chatbot | Answers condition-specific questions in plain language | Claude API + Typeform or simple web UI |
+| Discharge readiness screener | Asks patients a series of validated questions; flags high-risk patients | Typeform + Zapier + Google Sheets |
+| Medical image annotation helper | Uploads an image; MedGemma returns preliminary observations | MedGemma API + simple upload UI |
+| Medication interaction checker | Looks up two drugs; returns interaction risks in plain language | Claude API + Glide app |
+| Prior auth draft generator | Inputs patient info; generates a prior auth letter draft | Claude API + Bubble |
+
+All of these are achievable in 6 weeks with no coding background, using the tools described in this wiki.
+
+## Your MVP scoping document
+
+Write a 1-page document before you start building that includes:
+
+1. **Core user story** (the one sentence)
+2. **What the MVP does** (3–5 concrete sentences)
+3. **What the MVP does NOT do** (your out-of-scope list)
+4. **How you'll know it's working** (what would a user say or do that tells you it's working?)
+5. **What you need to build it** (tools, access, data)
+
+Share this with your mentor and get feedback before you start building. Two hours of scoping saves two weeks of rework.

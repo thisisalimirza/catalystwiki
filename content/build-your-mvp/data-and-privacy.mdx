@@ -1,0 +1,116 @@
+---
+title: "Data, Privacy & HIPAA"
+section: build-your-mvp
+icon: shield-lock
+updatedAt: "May 27, 2026"
+published: true
+order: 3
+---
+
+Healthcare data is the most regulated data in the US. Understanding the basics will keep your project legal, ethical, and credible on Demo Day. This page gives you the practical knowledge you need — not a law degree.
+
+<Callout type="warning" title="This is not legal advice">
+This page is a practical overview for Catalyst fellows building MVPs. For specific legal questions about your project, consult your institution's legal or compliance team, or ask your program facilitator to connect you with a compliance mentor.
+</Callout>
+
+## The short version
+
+For a Catalyst MVP:
+- **Don't collect or store real patient data** without proper agreements and safeguards in place
+- **Use de-identified or synthetic data** for development and demos
+- **Understand what HIPAA applies to** — it may not apply to your MVP at all
+- **Know what a "FDA-regulated device" is** — your MVP probably isn't one, but know why
+
+If you're building something that will eventually process real patient data in production, you need HIPAA compliance eventually — but not necessarily for the fellowship MVP.
+
+## What is HIPAA?
+
+HIPAA (Health Insurance Portability and Accountability Act) is US law that governs the privacy and security of **Protected Health Information (PHI)**.
+
+PHI is health information that can be linked to a specific individual. It includes:
+- Medical record numbers, account numbers
+- Dates (birth date, admission date, discharge date)
+- Geographic identifiers below state level (city, ZIP code)
+- Names, phone numbers, email addresses, Social Security numbers
+- Any health information combined with any of the above
+
+**HIPAA applies to:**
+- Covered entities (health plans, healthcare providers who transmit health information electronically, healthcare clearinghouses)
+- Business associates (companies that handle PHI on behalf of covered entities)
+
+**HIPAA does NOT apply to:**
+- An app that collects health information directly from individuals for their own use (like a fitness tracker)
+- Research data that has been properly de-identified
+- Patient-generated data where the individual has consented to its use
+
+## Does HIPAA apply to your MVP?
+
+Ask yourself: **Will real patient records (from a hospital, clinic, or health system) flow through your system?**
+
+- If **no** — your MVP likely doesn't need to be HIPAA-compliant. You're probably fine.
+- If **yes** — you need a Business Associate Agreement (BAA) with every vendor who touches that data, and HIPAA-compliant infrastructure.
+
+For a fellowship MVP, the cleanest approach is to avoid real PHI entirely.
+
+## Using de-identified data
+
+**De-identified data** is health information that has been stripped of all 18 HIPAA identifiers (names, dates, locations, etc.). De-identified data is not subject to HIPAA.
+
+For your MVP:
+- Use de-identified case vignettes in demos
+- Have your sponsor provide de-identified sample records for testing
+- Generate synthetic patient data (see below)
+- If you do user research involving patient records, work with your institution's IRB and data governance team
+
+**What counts as de-identified?** Under HIPAA's "Safe Harbor" method, you must remove all 18 identifiers (names, all dates, ZIP codes, ages >89, etc.) AND have no actual knowledge that the remaining information could identify an individual.
+
+## Synthetic data
+
+Synthetic data is fake but realistic health data generated to look like real records. It's perfect for demos.
+
+**Tools to generate synthetic data:**
+- **Synthea** — Open-source synthetic patient generator that produces realistic FHIR-formatted health records. Free and widely used. [synthetichealth.github.io/synthea](https://synthetichealth.github.io/synthea)
+- **Claude** — Ask Claude to generate realistic-looking (but fictional) clinical notes, lab results, or patient scenarios. "Generate 5 realistic de-identified clinical notes for patients with type 2 diabetes, including history, medications, and recent visit notes."
+- **Mockaroo** — Online tool for generating custom fake datasets.
+
+For Demo Day, using clearly synthetic data is completely legitimate and is often the right call — it lets you show compelling realistic outputs without any privacy risk.
+
+## FDA regulation of AI/software in healthcare
+
+The FDA regulates "Software as a Medical Device" (SaMD) — software that is intended to diagnose, prevent, cure, or treat a disease or condition.
+
+**Your MVP is probably NOT an FDA-regulated device if:**
+- It's a decision support tool that a clinician reviews and acts on with their own judgment
+- It's educational/informational (patient education, clinical reference)
+- It's a workflow/administrative tool (scheduling, documentation, billing)
+- It explicitly does not make autonomous clinical decisions
+
+**It could be regulated if:**
+- It claims to autonomously diagnose a specific condition
+- It drives specific treatment decisions without clinician review
+- It involves analysis of medical images for diagnostic purposes without a human-in-the-loop
+
+For the fellowship MVP: frame your tool as **decision support** or **educational**, ensure a human (clinician) reviews all outputs before clinical action, and you're well outside the regulated territory for now.
+
+<Callout type="info" title="The clinician-in-the-loop design principle">
+Building in a required clinician review step isn't just good regulatory strategy — it's also good product design. An AI tool that tells a clinician "here's a summary, please verify" is trusted and used. One that claims autonomous authority is not.
+</Callout>
+
+## What to tell users (and judges) about privacy
+
+On Demo Day and in any user testing, be clear about:
+
+1. **What data you're collecting** — "Users input clinical notes. We don't store them permanently / they're stored in X location / they're deleted after X time."
+2. **Whether data is sent to a third party** — "We send the note to Anthropic's API for processing. Anthropic's data usage policy applies." (Anthropic does not train on API data by default — worth mentioning.)
+3. **What you'd need to do in production** — "A production version would require a BAA with Anthropic and our cloud provider, and HIPAA-compliant storage."
+
+Judges who understand healthcare will appreciate this clarity. It shows you understand the space.
+
+## Practical checklist for your MVP
+
+- [ ] Is your demo data de-identified or synthetic? (It should be.)
+- [ ] Do you know whether real PHI will flow through your system? (Be clear on this.)
+- [ ] Does your AI model vendor have a BAA? (Anthropic offers BAAs for enterprise customers — contact your facilitator.)
+- [ ] Does your storage layer (Bubble database, Google Sheets, Airtable) have appropriate access controls?
+- [ ] Do you have a privacy notice for your demo site? (Even a simple one sentence: "This demo does not store personal information.")
+- [ ] Have you framed your AI outputs as "decision support" rather than "autonomous diagnosis"?

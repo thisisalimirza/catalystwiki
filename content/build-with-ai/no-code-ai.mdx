@@ -1,0 +1,162 @@
+---
+title: "AI Without Code"
+section: build-with-ai
+icon: click
+updatedAt: "May 27, 2026"
+published: true
+order: 5
+---
+
+You do not need to write code to embed AI in your product. Several no-code platforms have built-in AI connectors that let you wire Claude or other models into your app with a few clicks. This guide shows you how.
+
+## The no-code AI stack
+
+Here's the simplest architecture for an AI-powered product with no code:
+
+```
+User fills out a form (Typeform / Tally / your app's input field)
+    ↓
+Your no-code tool sends the input to Claude's API
+    ↓
+Claude returns a response
+    ↓
+Your no-code tool displays the output to the user
+```
+
+Every piece of this can be built without writing a single line of code.
+
+## Option 1: Bubble + API Connector (recommended)
+
+**Bubble** is the most powerful no-code platform for building web apps. It has a built-in API Connector plugin that lets you call any external API — including Claude.
+
+### Setting up Claude in Bubble
+
+1. In your Bubble app, go to **Plugins** → search for "API Connector" → Install it
+2. Go to **Plugins** → API Connector → Add another API
+3. Name it "Claude"
+4. Set the API root URL to: `https://api.anthropic.com`
+5. Add a shared header: `x-api-key` = your API key (stored securely in Bubble's environment settings)
+6. Add another header: `anthropic-version` = `2023-06-01`
+7. Create a new API Call:
+   - Method: POST
+   - URL: `/v1/messages`
+   - Body:
+   ```json
+   {
+     "model": "claude-sonnet-4-6",
+     "max_tokens": 1024,
+     "system": "Your system prompt here",
+     "messages": [{"role": "user", "content": "<user_input>"}]
+   }
+   ```
+   - Mark `<user_input>` as a dynamic parameter
+
+8. Click **Initialize call** — Bubble will detect the response structure
+9. In your page workflow: When user clicks Submit → Call the Claude API → Display the result
+
+That's it. You now have a working AI feature in your app with no code.
+
+<Callout type="tip" title="Hide your API key">
+In Bubble, store your API key under **Settings → General → Environment variables**, then reference it in the API Connector as `env.CLAUDE_KEY`. Never paste it directly in the plugin fields where it might be visible in screenshots or shared files.
+</Callout>
+
+## Option 2: Make (formerly Integromat)
+
+**Make** is a visual workflow automation tool. It's excellent for scenarios where you want to process AI responses automatically — like sending Claude's output to a Google Doc, emailing it to someone, or logging it in a spreadsheet.
+
+### Claude workflow in Make
+
+1. Create a new Scenario
+2. Add an **HTTP module** → Make a request
+   - URL: `https://api.anthropic.com/v1/messages`
+   - Method: POST
+   - Headers: Add `x-api-key` and `anthropic-version`
+   - Body: JSON with your prompt
+3. Parse the response with a **JSON module**
+4. Send the output wherever you need it (email, Google Sheets, Slack, etc.)
+
+Make is particularly useful for backend workflows that don't need a real-time UI — like "every time a form is submitted, send it to Claude and store the summary in our database."
+
+## Option 3: Zapier + AI by Zapier
+
+If you're already using Zapier, the **AI by Zapier** plugin lets you include an "Ask AI" step in any Zap. It supports custom prompts and can pass data from previous steps.
+
+This is the simplest possible option — no API credentials needed. It's less flexible than direct Claude access but works for simple summarization or classification tasks built into a Zapier workflow.
+
+## Option 4: Glide + AI columns
+
+**Glide** builds mobile-friendly apps from spreadsheets. It has native AI columns that can call AI models on your data without any API setup.
+
+Best for: simple mobile-facing tools where users browse or interact with AI-generated content, and the data lives in Google Sheets.
+
+## Option 5: Typeform → Make → Claude → Email/Sheet
+
+For the absolute simplest possible pipeline — a survey or intake form that automatically generates an AI response:
+
+1. **Typeform** — User fills in a form (symptoms, patient info, clinical question)
+2. **Make** — Trigger on new Typeform submission → format input → call Claude API
+3. **Claude** — Generate the response (summary, recommendation, education content)
+4. **Make** → Email the response to the clinician, or store it in a Google Sheet
+
+This requires no frontend development at all. You can have it working in a day.
+
+## Step-by-step: Build a clinical note summarizer in Bubble
+
+Here's a complete walkthrough:
+
+**Goal:** User pastes a clinical note. Clicks a button. Sees an AI-generated SOAP summary.
+
+**Time to build:** 2–3 hours for a first-time Bubble user.
+
+**Step 1:** Create a new Bubble app. Add a **multiline text input** (for the note) and a **button** ("Summarize").
+
+**Step 2:** Add a **text element** below the button to display the output. Give it a placeholder like "Your summary will appear here."
+
+**Step 3:** Set up the Claude API Connector (as described above). Use this system prompt:
+```
+You are a clinical documentation assistant. Convert the following clinical note into a 
+structured SOAP note format with four sections: Subjective, Objective, Assessment, Plan.
+Be concise. Use clinical language appropriate for a physician audience.
+```
+
+**Step 4:** Create a workflow on the button click:
+- Action 1: Call the Claude API, passing the text input's value as `user_input`
+- Action 2: Set the output text element's content to Claude's response
+
+**Step 5:** Test it with a sample note. Adjust your system prompt based on the output quality.
+
+**Step 6:** Add basic polish — a loading indicator, error handling if the API call fails, a character limit with a warning.
+
+You have a working AI product.
+
+## Troubleshooting common issues
+
+**"API call returns an error"**
+- Check that your API key is correct and hasn't been revoked
+- Check that the `anthropic-version` header is set
+- Check that your request body is valid JSON (use a JSON validator)
+
+**"The output looks wrong or inconsistent"**
+- Improve your system prompt — be more specific about format and constraints
+- Add examples to your prompt (few-shot)
+- Test with edge cases and add prompt rules to handle them
+
+**"It's too slow"**
+- Use a smaller model (claude-haiku-4-5 is fastest)
+- Reduce max_tokens if you don't need long responses
+- Add a loading state so users know something is happening
+
+**"The Bubble API Connector says 'Failed to initialize'"**
+- Make sure your API key and headers are correct
+- Try clicking the call manually from the API Connector settings first
+- Post in **#technical-help** in Slack with a screenshot of your setup
+
+## Getting help
+
+Post in **#technical-help** or **#ai-help** in Slack. Include:
+- What platform you're using (Bubble, Make, etc.)
+- What you're trying to build
+- A screenshot of your setup
+- The error message if any
+
+The technical mentors in those channels can usually unblock you within a few hours.

@@ -1,0 +1,124 @@
+---
+title: "No-Code Tools Guide"
+section: build-your-mvp
+icon: apps
+updatedAt: "May 27, 2026"
+published: true
+order: 2
+---
+
+A comprehensive guide to the no-code tools available to you as a Catalyst fellow, what each one is good for, and how to get started.
+
+## Quick comparison
+
+| Tool | Best for | Learning curve | Free tier |
+|---|---|---|---|
+| **Bubble** | Full web apps with logic and database | Medium (2–5 days) | Yes (with Bubble branding) |
+| **Glide** | Mobile-friendly apps from Google Sheets | Low (1–2 days) | Yes |
+| **Webflow** | Beautiful websites and content-heavy apps | Medium | Yes (limited) |
+| **Typeform** | Forms, surveys, patient intake | Very low (hours) | Yes |
+| **Tally** | Simple forms, free alternative to Typeform | Very low | Yes (generous) |
+| **Make** | Automation and data workflows | Low–medium | Yes |
+| **Zapier** | Simple automation between apps | Low | Yes (limited) |
+| **Retool** | Internal tools and dashboards | Medium | Yes |
+| **Airtable** | Database + spreadsheet hybrid | Low | Yes |
+| **Framer** | Interactive prototypes | Low | Yes |
+
+## Bubble — the workhorse
+
+Bubble is the most capable no-code platform for building full web applications. It has:
+
+- A visual drag-and-drop editor for designing pages
+- A workflow editor for adding logic (if/then, API calls, database operations)
+- A built-in database for storing user data
+- A plugin ecosystem including an API Connector for calling Claude
+- Built-in user authentication (if you need it)
+
+**Start here if:** You're building anything with meaningful interactivity, data storage, or AI integration.
+
+**Getting started:**
+1. Create a free account at [bubble.io](https://bubble.io)
+2. Start with one of Bubble's templates — pick something close to your use case
+3. Watch the official Bubble Academy videos (seriously — 2 hours of video will save you 10 hours of confusion)
+4. Build the simplest possible version of your core user story first
+
+**Bubble + Claude setup:** See the [AI Without Code guide](/build-with-ai/no-code-ai) for full instructions.
+
+**Gotchas:**
+- Bubble has its own way of doing things. Don't fight the platform — learn its conventions.
+- The free tier adds Bubble branding. For demo purposes, this is fine. You can remove it if needed.
+- Bubble apps can be slow if poorly optimized. For an MVP demo, this usually doesn't matter.
+
+## Glide — for mobile-first apps
+
+Glide builds app from Google Sheets. Add data to a sheet, and Glide turns it into a mobile-friendly interface instantly.
+
+**Best use cases for healthcare:**
+- Patient-facing apps where users browse or look up information (medications, educational content, local resources)
+- Simple intake forms that populate a spreadsheet
+- Clinical reference tools (drug dosing, protocol lookup, CPT codes)
+- Team coordination tools (who's on call, patient assignments)
+
+**Getting started:**
+1. Create a Google Sheet with your data (or dummy data to start)
+2. Go to [glideapps.com](https://glideapps.com) and connect your sheet
+3. Glide auto-generates an app structure — customize it from there
+4. Add Glide's AI columns for AI-powered features (no API setup required)
+
+**Glide AI columns:** Glide has built-in AI columns that can summarize, translate, classify, or answer questions about data in your sheet — without any API credentials. Great for quick prototyping.
+
+## Typeform + Make — the simplest pipeline
+
+For the absolute simplest AI-powered tool:
+
+1. **Typeform** — Create a patient intake form, symptom screener, or clinical input form
+2. **Make** — Set up a workflow that triggers when a form is submitted, sends the data to Claude, and stores or emails the result
+3. Done
+
+This requires no frontend development and can be production-ready for a demo in a day.
+
+**Typeform:** Free account at [typeform.com](https://typeform.com). Alternatively, use [tally.so](https://tally.so) — it's free with no usage limits and just as capable.
+
+**Make:** Free account at [make.com](https://make.com). The free tier allows 1,000 operations/month — more than enough for a demo.
+
+## Retool — for internal tools and dashboards
+
+Retool is built for "internal tools" — dashboards, admin panels, and data management interfaces. If your product is for healthcare administrators, clinical managers, or research staff (not patients), Retool may be the fastest path.
+
+**Best for:** Dashboards showing patient outcomes, referral management tools, staff scheduling, research data review.
+
+**Note:** Retool has a steeper learning curve than Typeform but less than Bubble. There's a free tier for small teams.
+
+## Framer — for interactive mockups
+
+Framer is a design and prototyping tool that can publish interactive mockups as real URLs. It's great for creating something that looks and feels like a real product before you've built the backend.
+
+**Use case:** Build a Framer prototype for user testing before committing to Bubble. Users can click through your interface and give you feedback on the flow.
+
+## Airtable — as your database
+
+Many Catalyst teams use Airtable as a lightweight database + interface combo. It's easier to set up than a real database and has a decent built-in interface.
+
+**Use case:** Store research data, track patient cohorts (de-identified), manage intake form submissions, build simple CRUD (create/read/update/delete) interfaces.
+
+Airtable connects natively to Make and Zapier.
+
+## Tool combinations that work well together
+
+**For a patient-facing clinical tool:**
+Typeform (intake) → Make (workflow) → Claude API (AI processing) → Email or Glide (output display)
+
+**For a clinician-facing workflow tool:**
+Bubble (full app + database) → Claude API (AI features) → Deployed on Bubble hosting
+
+**For a data-heavy research tool:**
+Google Sheets (data) → Airtable (database) → Retool or Streamlit (dashboard) → Claude API (analysis)
+
+**For an imaging or upload-based tool:**
+Bubble (file upload UI) → Make (workflow) → MedGemma or Claude API → Bubble (display results)
+
+## Getting help
+
+All these tools have active communities and extensive documentation. But your fastest path to help is the **#technical-help** Slack channel — post what you're trying to build, what tool you're using, and where you're stuck. The mentors there are familiar with all of these platforms.
+
+We also have a workshop specifically on no-code tools in Week 4 — attend that session for a hands-on walkthrough.
