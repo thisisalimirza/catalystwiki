@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import * as Icons from '@tabler/icons-react';
 import type { NavGroup } from '@/lib/content';
+import { useTocContext } from './TocContext';
 
 type RecentChange = {
   title: string;
@@ -49,6 +50,29 @@ export default function Sidebar({
   recentChanges: RecentChange[];
 }) {
   const pathname = usePathname();
+  const { tocItems } = useTocContext();
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Track active heading via IntersectionObserver whenever TOC items change
+  useEffect(() => {
+    if (tocItems.length === 0) { setActiveId(null); return; }
+    setActiveId(tocItems[0]?.id ?? null);
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          setActiveId(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -65% 0px', threshold: [0, 1] }
+    );
+    tocItems.forEach((i) => {
+      const el = document.getElementById(i.id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, [tocItems]);
 
   // Initialize all top-level sections as expanded
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
@@ -148,17 +172,17 @@ export default function Sidebar({
   return (
     <aside className="hidden md:flex md:w-[240px] md:flex-col border-r border-hairline bg-sidebar h-screen sticky top-0">
       <div className="px-4 pt-5 pb-3">
-        <Link href="/overview/home" className="flex items-center gap-2.5 group">
+        <Link href="/welcome/home" className="flex items-center gap-2.5 group">
           <Image
             src="/logo.png"
-            alt="MDplus"
+            alt="Catalyst"
             width={28}
             height={28}
             className="shrink-0"
           />
           <div className="leading-tight">
-            <div className="font-semibold text-[14px] text-ink">MDplus</div>
-            <div className="text-[11px] text-muted">Leadership Wiki</div>
+            <div className="font-semibold text-[14px] text-ink">Catalyst</div>
+            <div className="text-[11px] text-muted">Fellow Wiki</div>
           </div>
         </Link>
       </div>
@@ -182,6 +206,33 @@ export default function Sidebar({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto scrollbar-thin px-2 pb-3">
         {topLevelSections.map(group => renderSection(group))}
+
+        {/* On this page — TOC for the current page */}
+        {tocItems.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-hairline mx-1">
+            <div className="flex items-center gap-1.5 px-2 pt-2 pb-1 text-[11px] font-semibold tracking-[0.04em] uppercase text-muted">
+              <Icons.IconList size={12} stroke={2} className="shrink-0" />
+              <span>On this page</span>
+            </div>
+            <ul className="ml-1">
+              {tocItems.map((item) => (
+                <li key={item.id} style={{ paddingLeft: (item.level - 2) * 10 }}>
+                  <a
+                    href={`#${item.id}`}
+                    className={[
+                      'block text-[12.5px] leading-snug py-0.5 px-2 rounded transition-colors',
+                      activeId === item.id
+                        ? 'text-brand font-medium'
+                        : 'text-muted hover:text-ink',
+                    ].join(' ')}
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </nav>
 
       {/* Recent Changes */}
@@ -209,12 +260,12 @@ export default function Sidebar({
 
       <div className="border-t border-hairline px-4 py-3 text-[11px] text-muted">
         <a
-          href="https://mdplus.community"
+          href="https://catalyst.mdplus.community"
           target="_blank"
           rel="noreferrer"
           className="hover:text-brand"
         >
-          mdplus.community ↗
+          catalyst.mdplus.community ↗
         </a>
       </div>
     </aside>
