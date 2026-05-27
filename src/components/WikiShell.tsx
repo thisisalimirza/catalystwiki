@@ -33,19 +33,18 @@ function MarginToc({ items }: { items: TocItem[] }) {
 
   return (
     <nav>
-      <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted mb-3">
-        On this page
-      </p>
-      <ul className="flex flex-col gap-0.5">
+      <p className="text-[11px] font-medium text-muted mb-3">On this page</p>
+      <ul>
         {items.map((item) => (
-          <li key={item.id} style={{ paddingLeft: (item.level - 2) * 10 }}>
+          <li key={item.id}>
             <a
               href={`#${item.id}`}
+              style={{ paddingLeft: 12 + (item.level - 2) * 12 }}
               className={[
-                'block text-[12px] leading-snug py-0.5 transition-colors',
+                'block text-[12px] leading-snug py-[5px] border-l-2 transition-all duration-100',
                 active === item.id
-                  ? 'text-brand font-medium'
-                  : 'text-muted hover:text-ink',
+                  ? 'border-brand text-brand font-medium'
+                  : 'border-transparent text-muted hover:text-ink hover:border-gray-300',
               ].join(' ')}
             >
               {item.text}
@@ -54,6 +53,57 @@ function MarginToc({ items }: { items: TocItem[] }) {
         ))}
       </ul>
     </nav>
+  );
+}
+
+function ActionButtons({
+  path,
+  onEdit,
+  onNew,
+  onImport,
+  onManage,
+  className = '',
+}: {
+  path: string | null;
+  onEdit: () => void;
+  onNew: () => void;
+  onImport: () => void;
+  onManage: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      {path && (
+        <button
+          onClick={onEdit}
+          className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-hairline text-[12px] font-medium text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+        >
+          <Icons.IconPencil size={12} stroke={1.75} />
+          Edit
+        </button>
+      )}
+      <button
+        onClick={onNew}
+        title="New page"
+        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+      >
+        <Icons.IconPlus size={14} stroke={1.75} />
+      </button>
+      <button
+        onClick={onImport}
+        title="Import MDX"
+        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+      >
+        <Icons.IconUpload size={14} stroke={1.75} />
+      </button>
+      <button
+        onClick={onManage}
+        title="Manage pages"
+        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+      >
+        <Icons.IconSettings size={14} stroke={1.75} />
+      </button>
+    </div>
   );
 }
 
@@ -82,71 +132,53 @@ export default function WikiShell({
   const openEdit = useCallback(() => {
     if (path) setEditorMode({ kind: 'edit', path });
   }, [path]);
-  const openNew = useCallback(() => {
-    setEditorMode({ kind: 'new' });
-  }, []);
-  const openManage = useCallback(() => {
-    setEditorMode({ kind: 'manage' });
-  }, []);
-  const openImport = useCallback(() => {
-    setEditorMode({ kind: 'import' });
-  }, []);
+  const openNew = useCallback(() => setEditorMode({ kind: 'new' }), []);
+  const openManage = useCallback(() => setEditorMode({ kind: 'manage' }), []);
+  const openImport = useCallback(() => setEditorMode({ kind: 'import' }), []);
 
   return (
     <div className="flex-1 min-w-0 relative">
-      {/* 3-column layout: [left TOC] [content] [right balance] */}
-      <div className="flex justify-center min-h-full">
+      {/*
+        3-column layout on xl+: [TOC 160px] [content] [actions 160px]
+        All three columns start at the same pt-8 so TOC label, breadcrumbs,
+        and action buttons all sit on the same horizontal baseline.
+      */}
+      <div className="flex justify-center">
 
-        {/* Left margin TOC — sits in the natural whitespace between sidebar and content */}
-        <div className="hidden xl:block w-[200px] shrink-0">
-          <div className="sticky top-0 h-screen overflow-y-auto pt-8 pb-8 pl-6 pr-5">
+        {/* Left — sticky "On this page" TOC */}
+        <div className="hidden xl:block w-[160px] shrink-0">
+          <div className="sticky top-0 h-screen overflow-y-auto pt-8 pb-8 pl-6 pr-2">
             <MarginToc items={toc} />
           </div>
         </div>
 
-        {/* Main content */}
-        <main className="min-w-0 w-full max-w-[780px] px-6 md:px-10 py-8">
-          {/* Page action buttons */}
-          <div className="flex justify-end gap-2 mb-4 -mt-1">
-            {path && (
-              <button
-                onClick={openEdit}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 transition-colors"
-              >
-                <Icons.IconPencil size={12} stroke={1.75} />
-                Edit page
-              </button>
-            )}
-            <button
-              onClick={openNew}
-              className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-hairline text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
-            >
-              <Icons.IconPlus size={12} stroke={1.75} />
-              New
-            </button>
-            <button
-              onClick={openImport}
-              className="hidden sm:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-hairline text-[12px] font-medium text-muted hover:bg-black/[0.03] transition-colors"
-              title="Import MDX files"
-            >
-              <Icons.IconUpload size={12} stroke={1.75} />
-            </button>
-            <button
-              onClick={openManage}
-              className="hidden sm:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-hairline text-[12px] font-medium text-muted hover:bg-black/[0.03] transition-colors"
-              title="Manage pages"
-            >
-              <Icons.IconSettings size={12} stroke={1.75} />
-            </button>
-          </div>
+        {/* Center — article content */}
+        <main className="min-w-0 flex-1 max-w-[820px] px-8 md:px-12 py-8">
+          {/* Action buttons: visible only when columns are hidden */}
+          <ActionButtons
+            path={path}
+            onEdit={openEdit}
+            onNew={openNew}
+            onImport={openImport}
+            onManage={openManage}
+            className="xl:hidden justify-end mb-5"
+          />
           {children}
         </main>
 
-        {/* Right balance spacer — mirrors left TOC width to keep content visually centered */}
-        <div className="hidden xl:block w-[200px] shrink-0" />
+        {/* Right — action buttons on wide screens, aligns with breadcrumbs */}
+        <div className="hidden xl:flex w-[160px] shrink-0 pt-8 pl-4 pr-6">
+          <ActionButtons
+            path={path}
+            onEdit={openEdit}
+            onNew={openNew}
+            onImport={openImport}
+            onManage={openManage}
+          />
+        </div>
+
       </div>
 
-      {/* Overlays */}
       {editorMode && (
         <Editor
           mode={editorMode}
