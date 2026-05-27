@@ -72,36 +72,36 @@ function ActionButtons({
   className?: string;
 }) {
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       {path && (
         <button
           onClick={onEdit}
-          className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-hairline text-[12px] font-medium text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+          className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 transition-colors"
         >
-          <Icons.IconPencil size={12} stroke={1.75} />
-          Edit
+          <Icons.IconPencil size={13} stroke={1.75} />
+          Edit page
         </button>
       )}
       <button
         onClick={onNew}
-        title="New page"
-        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+        className="flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-hairline text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
       >
-        <Icons.IconPlus size={14} stroke={1.75} />
+        <Icons.IconPlus size={13} stroke={1.75} />
+        New page
       </button>
       <button
         onClick={onImport}
-        title="Import MDX"
-        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+        title="Import MDX files"
+        className="flex items-center justify-center h-8 px-2.5 rounded-md border border-hairline text-muted text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
       >
-        <Icons.IconUpload size={14} stroke={1.75} />
+        <Icons.IconUpload size={13} stroke={1.75} />
       </button>
       <button
         onClick={onManage}
         title="Manage pages"
-        className="h-7 w-7 flex items-center justify-center rounded-md border border-hairline text-muted hover:text-ink hover:bg-black/[0.04] transition-colors"
+        className="flex items-center justify-center h-8 px-2.5 rounded-md border border-hairline text-muted text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
       >
-        <Icons.IconSettings size={14} stroke={1.75} />
+        <Icons.IconSettings size={13} stroke={1.75} />
       </button>
     </div>
   );
