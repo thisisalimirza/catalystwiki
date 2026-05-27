@@ -1,0 +1,104 @@
+---
+title: "AI for Healthcare Builders — Start Here"
+section: build-with-ai
+icon: sparkles
+updatedAt: "May 27, 2026"
+published: true
+order: 1
+---
+
+You don't need to understand how AI works to use it in your product. You do need to understand what it's good at, what it's bad at, and which tools are available to you. This page covers all three.
+
+## What AI can do for your healthcare project
+
+Modern AI — particularly large language models like Claude and domain-specific models like MedGemma — can:
+
+**Generate and transform text**
+- Summarize long clinical notes into structured formats (SOAP, SBAR, discharge summaries)
+- Translate complex medical language into plain English for patients
+- Draft prior authorization letters from clinical information
+- Generate patient education content tailored to a specific condition
+
+**Answer questions and reason**
+- Answer clinical questions based on evidence (with important caveats — see below)
+- Explain diagnostic criteria or treatment guidelines
+- Walk through differential diagnoses
+- Answer a patient's FAQ about their condition or procedure
+
+**Classify and organize**
+- Categorize incoming messages or referrals by urgency
+- Tag clinical notes by diagnosis or procedure type
+- Screen for specific criteria (e.g., "does this patient meet criteria for X?")
+
+**Analyze structured data**
+- Identify patterns in a spreadsheet of patient outcomes
+- Flag anomalies in a dataset
+- Generate summary statistics from raw data
+
+**Analyze medical images (MedGemma)**
+- Provide preliminary observations on X-rays, pathology slides, dermatology images
+- Highlight areas of interest for radiologist review
+- Support education and training use cases
+
+## What AI cannot reliably do (yet)
+
+**Make clinical decisions autonomously.** AI outputs are probabilistic and can be confidently wrong. In your MVP, AI should *support* a clinician's decision, not replace it. Your Demo Day pitch will be much stronger if you're clear about this.
+
+**Access live patient data without integration work.** AI models (including Claude) don't have access to your hospital's EHR, real-time lab results, or live patient records unless you specifically build that connection. For your MVP, the user inputs the relevant information manually.
+
+**Guarantee regulatory compliance.** Using AI in a clinical setting raises FDA regulatory questions, especially if the output is used to inform a diagnosis or treatment. For the fellowship MVP, you're building a prototype — not a Class II medical device. But understand this boundary exists.
+
+**Maintain perfect factual accuracy.** Language models can "hallucinate" — generate plausible-sounding but incorrect information. For any clinical content, design your product to show citations or sources, and don't let AI output be the final word without clinical review.
+
+## Your AI toolkit as a Catalyst fellow
+
+You have access to two major AI resources as part of the program:
+
+<LinkCard
+  href="/build-with-ai/claude-guide"
+  title="Claude (Anthropic)"
+  description="$30K in API credits. Excellent for text generation, summarization, Q&A, and building clinical tools. Start here."
+  icon="robot"
+/>
+
+<LinkCard
+  href="/build-with-ai/medgemma-guide"
+  title="MedGemma (Google HiDef)"
+  description="Google's open medical AI model. Best for healthcare-specific tasks — clinical notes, medical imaging, condition-specific Q&A."
+  icon="stethoscope"
+/>
+
+<LinkCard
+  href="/build-with-ai/prompt-engineering"
+  title="Prompt engineering"
+  description="How to get great results from AI — for both building your product and using AI in your own research process."
+  icon="terminal"
+/>
+
+<LinkCard
+  href="/build-with-ai/no-code-ai"
+  title="AI without code"
+  description="Use AI in your product without writing a single line of code. Tools and step-by-step guides."
+  icon="click"
+/>
+
+## Which model should you use?
+
+| Use case | Recommended model |
+|---|---|
+| Clinical note summarization | Claude or MedGemma (both excellent) |
+| Patient education content | Claude (best at plain-language writing) |
+| Prior auth letter drafting | Claude |
+| Medical image analysis | MedGemma |
+| General-purpose Q&A chatbot | Claude |
+| Clinical question answering | MedGemma (trained on clinical data) |
+| Data analysis from a spreadsheet | Claude |
+| Multilingual patient communication | Claude |
+
+When in doubt, start with Claude — the API is the most accessible, the credits are ready to use, and the documentation is excellent.
+
+## Getting started right now
+
+You don't need to set up anything technical to start exploring AI for your project. Go to [claude.ai](https://claude.ai), create a free account, and start having conversations about your project. Describe the problem you're solving and ask Claude for help framing it. Paste in a sample clinical note and ask it to summarize. Try writing your first prompt.
+
+The API — which lets you embed Claude's capabilities in your own product — comes next. See the [Claude guide](/build-with-ai/claude-guide).

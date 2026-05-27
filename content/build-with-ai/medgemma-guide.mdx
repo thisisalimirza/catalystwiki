@@ -1,0 +1,137 @@
+---
+title: "Using MedGemma (Google HiDef)"
+section: build-with-ai
+icon: stethoscope
+updatedAt: "May 27, 2026"
+published: true
+order: 3
+---
+
+MedGemma is Google's family of open medical AI models, developed and championed for Catalyst by **Google HiDef**, one of our key program sponsors. It's specifically trained on healthcare data, which gives it meaningful advantages over general-purpose models for clinical tasks.
+
+## What makes MedGemma different
+
+Most AI models — including Claude and GPT-4 — are trained on general internet text. They're excellent, but they weren't specifically trained on medical records, pathology reports, clinical guidelines, or medical imaging datasets.
+
+MedGemma was built for healthcare. It has been trained on:
+
+- Medical imaging datasets (chest X-rays, dermatology, pathology)
+- Clinical text corpora (medical literature, clinical notes)
+- Biomedical question-answering benchmarks
+
+This makes it particularly strong for:
+
+| Task | Why MedGemma excels |
+|---|---|
+| Medical image analysis | Trained on medical imaging datasets |
+| Clinical Q&A | Fine-tuned on medical benchmarks |
+| Medical literature reasoning | Trained on biomedical text |
+| Condition-specific information | Deep domain knowledge |
+
+## MedGemma model variants
+
+| Model | Best for |
+|---|---|
+| **MedGemma 4B** | Fast responses, clinical text tasks, resource-constrained environments |
+| **MedGemma 27B** | Higher accuracy, complex reasoning, preferred for imaging tasks |
+| **MedGemma multimodal** | Input includes images (X-rays, slides, skin photos) |
+
+For most Catalyst MVPs, **MedGemma 4B** is a great starting point — it's fast and capable enough for most text tasks. Use the multimodal variant if your project involves image analysis.
+
+## Getting access through Google HiDef
+
+As a Catalyst fellow, you have access to MedGemma through Google HiDef's program partnership.
+
+**To get access:**
+1. Sign up for a Google Cloud account (free tier works to start)
+2. Email your program facilitator at catalyst@mdplus.community with subject line "MedGemma access request — [Team name]"
+3. Google HiDef will provision access to Vertex AI with your fellowship credentials
+4. You'll be able to run MedGemma via Google Cloud's Vertex AI API
+
+**Alternative: Hugging Face**
+MedGemma is also available as an open-weight model on Hugging Face. You can run it locally or via Hugging Face's Inference API. This is more technical but doesn't require a Google Cloud account. See the [Hugging Face MedGemma page](https://huggingface.co/google/medgemma-4b-it).
+
+<Callout type="info" title="Open weights = you can run it yourself">
+Unlike Claude (which is only available via Anthropic's API), MedGemma is an open-weight model — meaning Google has released the model weights so anyone can run it. This means you can run it on your own hardware, on Google Colab, or via Hugging Face — not just through a proprietary API. For a fellowship MVP, the Vertex AI route is easiest.
+</Callout>
+
+## What MedGemma is best at
+
+### Medical image analysis
+Upload a medical image and MedGemma can:
+- Describe findings visible in a chest X-ray
+- Identify regions of interest in a pathology slide
+- Provide preliminary observations on dermatological images
+- Support educational review of imaging cases
+
+**Important:** MedGemma is not FDA-cleared as a diagnostic device. For your MVP, frame this as "decision support" or "educational assistance," not autonomous diagnosis. Always include a clinician-review step.
+
+### Clinical question answering
+MedGemma performs strongly on established medical QA benchmarks (MedQA, MedMCQA). Use cases:
+- "What are the first-line treatments for [condition] per current guidelines?"
+- "What are the contraindications for [medication] in patients with [comorbidity]?"
+- "Explain the mechanism of [drug class]"
+
+### Clinical note understanding
+MedGemma has been trained on clinical text and understands the abbreviations, shorthand, and structure of real clinical notes better than general models. Use cases:
+- Extract structured data from unstructured notes
+- Identify diagnoses mentioned in a note
+- Summarize a progress note in plain language
+
+## Sample use cases for MVP projects
+
+**Radiology assistant**
+User uploads a chest X-ray image → MedGemma returns observations (e.g., "Increased opacity in right lower lobe consistent with possible consolidation") → Radiologist reviews and confirms or overrides.
+
+**Clinical guideline chatbot**
+User asks condition-specific questions → MedGemma returns evidence-based answers citing current guidelines → User follows up with clarifying questions.
+
+**Symptom triage screener**
+User (patient or clinician) inputs a list of symptoms → MedGemma returns a differential and recommended next steps → Output is reviewed by a clinician before being shared with the patient.
+
+**Dermatology screening aid**
+Patient uploads a photo of a skin lesion → MedGemma returns preliminary assessment (e.g., features consistent with benign vs. potentially concerning findings) → Clinician reviews.
+
+## Quick start: Try MedGemma in your browser
+
+The fastest way to experience MedGemma is Google AI Studio:
+
+1. Go to [aistudio.google.com](https://aistudio.google.com)
+2. Sign in with your Google account
+3. Select a Gemma model (MedGemma variants are available)
+4. Start prompting
+
+This doesn't require any setup and gives you a feel for the model's capabilities before you build anything.
+
+## Practical prompting for MedGemma
+
+MedGemma responds well to structured, clinical prompting. Tips:
+
+**For image analysis:**
+```
+You are a clinical decision support tool. Analyze the attached medical image and describe:
+1. The imaging modality and patient positioning
+2. Visible anatomical structures
+3. Any findings that deviate from normal, described in clinical terms
+4. Findings that may require follow-up, if any
+
+Important: This is a decision-support tool. All findings should be reviewed by a qualified clinician.
+```
+
+**For clinical Q&A:**
+```
+You are a clinical reference assistant trained on medical literature. Answer the following 
+clinical question based on current evidence-based guidelines. Cite the guideline or source 
+where possible. If there is clinical uncertainty or ongoing debate, acknowledge it. 
+Do not provide specific advice for individual patient cases.
+
+Question: [clinical question]
+```
+
+## Resources
+
+- [MedGemma on Hugging Face](https://huggingface.co/google/medgemma-4b-it) — Model weights and documentation
+- [Google Vertex AI documentation](https://cloud.google.com/vertex-ai/docs) — API access via Google Cloud
+- [Google AI Studio](https://aistudio.google.com) — Browser-based testing
+- **#google-hidef** Slack channel — Direct access to Google HiDef team for technical questions
+- Ask for a Google HiDef office hours slot via your program facilitator — they've committed to being available for fellows

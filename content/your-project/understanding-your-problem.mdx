@@ -1,0 +1,93 @@
+---
+title: "Understanding Your Problem"
+section: your-project
+icon: search
+updatedAt: "May 27, 2026"
+published: true
+order: 1
+---
+
+The most common reason Catalyst projects fall short isn't technical — it's that teams started building before they truly understood the problem. This guide will help you avoid that.
+
+## The fundamental mistake
+
+Most people — especially clinicians — think they already understand the problem because they see it every day. But there's a crucial difference between:
+
+- "I see patients struggle to understand their discharge instructions" (observation)
+- "Patients who don't understand discharge instructions are 2x more likely to be readmitted, and the bottleneck is that instructions are written at a 12th-grade reading level while our average patient reads at a 6th-grade level" (understood problem)
+
+The second version tells you exactly what to build. The first version might lead you to build something that solves the wrong part of the problem.
+
+## The problem framing framework
+
+Use this structure to articulate your problem before you start building:
+
+### 1. Who has this problem?
+Be specific. "Patients" is too broad. "ICU nurses during shift changes at a 500-bed academic medical center" is specific enough to design for.
+
+- Who is the primary person experiencing the pain?
+- What are they doing when the problem occurs?
+- What is their context (time pressure, environment, expertise level)?
+
+### 2. What is the current situation?
+Describe what happens today, without your solution in the picture.
+
+- What does the person do right now when this problem comes up?
+- What workarounds have they invented?
+- What tools do they already use?
+
+### 3. What is the cost of the problem?
+Problems worth solving have real, measurable costs. Identify at least one:
+
+- **Clinical cost:** Patient harm, misdiagnosis, delayed treatment
+- **Time cost:** How many minutes/hours per day is this consuming?
+- **Financial cost:** Avoidable readmissions, unnecessary tests, wasted staff time
+- **Emotional cost:** Burnout, moral injury, patient distress
+
+### 4. What would "solved" look like?
+Describe what success looks like for the user — before you describe your solution.
+
+"The nurse would be able to complete a shift handoff that captures all critical patient information in under 3 minutes, without having to dig through multiple systems."
+
+### 5. What are the constraints?
+What makes this hard to solve? These are not obstacles to ignore — they're the shape of the problem.
+
+- Regulatory (HIPAA, FDA, state licensing)
+- Workflow (can't add 10 minutes to an already slammed schedule)
+- Technical (legacy EHR systems with no API access)
+- Social (physicians won't use a tool they didn't choose)
+
+<Callout type="tip" title="Write it down">
+Completing this framework takes about 30–60 minutes of focused thinking. Write it in a shared doc with your team. Come back to it after your user research and update it. It will change — that's good.
+</Callout>
+
+## For sponsored track fellows
+
+Your sponsor has given you a problem brief. Read it carefully, but don't treat it as the final word. The brief represents what the sponsor *thinks* the problem is — which may or may not be what the actual users experience.
+
+Your job in weeks 1–2 is to **validate the problem brief against what you hear from real users**. If the brief says "clinicians struggle with X" and you talk to 5 clinicians who never mention X, you need to go back to your sponsor contact with that finding — and that's valuable.
+
+## For indie track fellows
+
+You're starting with an idea. Now you need to stress-test it. Ask yourself:
+
+- "Have I personally experienced this problem as a clinician/patient/researcher?" — If yes, great starting point. But you're not your user.
+- "Who else has this problem?" — Can I name 10 real people who have it right now?
+- "Why hasn't it been solved?" — What's made this hard? (There's usually a real reason.)
+- "Is there a regulation or incumbent that blocks solutions?" — Know what you're navigating.
+
+## User research: your actual tool
+
+The only reliable way to understand a problem is to talk to people who have it. Before you start building, talk to at least **3–5 people** who are the target users of your solution.
+
+See the [User research guide](/your-project/user-research) for exactly how to do this — including interview scripts, what questions to ask, and how to synthesize what you learn.
+
+## One final check
+
+Before you move to scoping your MVP, answer these three questions:
+
+1. "I am building for [specific person] who needs to [specific job], because [current situation causes this specific pain]."
+2. "I've spoken to at least 3 people who confirmed they have this problem and that the pain I identified is real."
+3. "If I solve this one specific thing, the cost of the problem goes down in this specific, measurable way."
+
+If you can answer all three clearly, you're ready to define what you'll build.

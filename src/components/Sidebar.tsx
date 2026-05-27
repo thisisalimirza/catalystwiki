@@ -148,23 +148,23 @@ export default function Sidebar({
   return (
     <aside className="hidden md:flex md:w-[240px] md:flex-col border-r border-hairline bg-sidebar h-screen sticky top-0">
       <div className="px-4 pt-5 pb-3">
-        <Link href="/overview/home" className="flex items-center gap-2.5 group">
+        <Link href="/welcome/home" className="flex items-center gap-2.5 group">
           <Image
             src="/logo.png"
-            alt="MDplus"
+            alt="Catalyst"
             width={28}
             height={28}
             className="shrink-0"
           />
           <div className="leading-tight">
-            <div className="font-semibold text-[14px] text-ink">MDplus</div>
-            <div className="text-[11px] text-muted">Leadership Wiki</div>
+            <div className="font-semibold text-[14px] text-ink">Catalyst</div>
+            <div className="text-[11px] text-muted">Fellow Wiki</div>
           </div>
         </Link>
       </div>
 
       {/* Search trigger */}
-      <div className="px-3 pb-3">
+      <div className="px-3 pb-2">
         <button
           onClick={() => {
             document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
@@ -176,6 +176,31 @@ export default function Sidebar({
           <kbd className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
             ⌘K
           </kbd>
+        </button>
+      </div>
+
+      {/* New page / admin actions */}
+      <div className="px-3 pb-3 flex items-center gap-1.5">
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'new' } }))}
+          className="flex-1 flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-brand/[0.08] text-brand text-[12px] font-medium hover:bg-brand/[0.14] transition-colors"
+        >
+          <Icons.IconPlus size={13} stroke={2} />
+          New page
+        </button>
+        <button
+          title="Import MDX files"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'import' } }))}
+          className="h-7 w-7 flex items-center justify-center rounded-md text-muted hover:text-ink hover:bg-black/[0.05] transition-colors"
+        >
+          <Icons.IconUpload size={14} stroke={1.75} />
+        </button>
+        <button
+          title="Manage pages"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'manage' } }))}
+          className="h-7 w-7 flex items-center justify-center rounded-md text-muted hover:text-ink hover:bg-black/[0.05] transition-colors"
+        >
+          <Icons.IconSettings size={14} stroke={1.75} />
         </button>
       </div>
 
@@ -209,12 +234,12 @@ export default function Sidebar({
 
       <div className="border-t border-hairline px-4 py-3 text-[11px] text-muted">
         <a
-          href="https://mdplus.community"
+          href="https://catalyst.mdplus.community"
           target="_blank"
           rel="noreferrer"
           className="hover:text-brand"
         >
-          mdplus.community ↗
+          catalyst.mdplus.community ↗
         </a>
       </div>
     </aside>

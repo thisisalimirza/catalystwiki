@@ -17,8 +17,8 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'MDplus Leadership Wiki',
-  description: 'Institutional knowledge, SOPs, and key links for MDplus leadership.',
+  title: 'Catalyst Fellow Wiki',
+  description: 'Guides, resources, and documentation for Catalyst healthcare innovation fellows.',
   robots: { index: false, follow: false },
 };
 

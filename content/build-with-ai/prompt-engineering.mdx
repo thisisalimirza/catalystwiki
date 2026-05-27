@@ -1,0 +1,132 @@
+---
+title: "Prompt Engineering"
+section: build-with-ai
+icon: terminal
+updatedAt: "May 27, 2026"
+published: true
+order: 4
+---
+
+Prompt engineering is the skill of writing instructions to AI models that produce reliable, high-quality outputs. It sounds technical but it's really just learning how to communicate well with a very powerful tool. This is the highest-leverage skill you can learn for the fellowship.
+
+## The mental model
+
+Think of an AI model as an extremely capable new employee who:
+- Has read virtually everything on the internet
+- Has no memory of previous conversations (unless you give them context)
+- Will try to do exactly what you ask — so be precise
+- Will fill in gaps with assumptions — so be explicit
+- Performs much better with examples than with rules
+
+Good prompting is just good communication.
+
+## The anatomy of a prompt
+
+Every interaction with an AI model has up to three components:
+
+**1. System prompt** (optional but important)
+The standing instructions. This sets the persona, rules, format, and constraints that apply to every message. Think of it as the job description.
+
+**2. User message**
+The specific task or question in this conversation.
+
+**3. Examples** (optional but powerful)
+Sample inputs and outputs that show the model what "good" looks like. This is called few-shot prompting.
+
+## Core techniques
+
+### Be explicit about format
+If you want a table, say "return a table." If you want bullet points, say "use bullet points." If you want JSON, say "return JSON."
+
+**Vague:** "Summarize this clinical note."
+
+**Better:** "Summarize this clinical note in 3 sections: (1) Chief complaint and history, (2) Assessment and plan, (3) Critical flags and follow-up items. Each section should be 2–4 sentences."
+
+### Give the model a role
+Start your system prompt with a role. This anchors the model's behavior and reduces hallucination on domain-specific tasks.
+
+"You are a board-certified emergency physician reviewing clinical notes for shift handoff."
+
+vs.
+
+"You are an AI assistant."
+
+The first produces consistently better clinical output.
+
+### Show, don't just tell (few-shot examples)
+Including one or two examples of the input/output you want is often the single most effective technique.
+
+```
+System: You convert clinical abbreviations to plain English.
+
+Example input: Pt c/o SOB x2d, +DOE, -orthopnea. PMH: HTN, DM2.
+Example output: The patient reports difficulty breathing for 2 days that gets worse with exertion but does not prevent lying flat. They have a history of high blood pressure and type 2 diabetes.
+
+Now convert:
+[clinical text]
+```
+
+### Control output length
+Specify how long you want the response. Models tend to be verbose by default.
+
+"Respond in no more than 150 words."
+"Be concise — 3 bullet points maximum."
+"Provide a thorough, comprehensive answer — this will be used as a reference document."
+
+### Chain of thought for complex reasoning
+For complex clinical reasoning tasks, ask the model to think step by step before giving its answer.
+
+"Before answering, think through the differential diagnosis systematically, then provide your final answer."
+
+This significantly improves accuracy on reasoning tasks.
+
+### Add safety rails
+For healthcare applications, include explicit guardrails:
+
+"Always include a disclaimer that this output is for informational purposes and should be reviewed by a qualified clinician before clinical use."
+
+"If the user asks about a specific patient situation, always recommend they speak with their care provider rather than providing individualized medical advice."
+
+## Iterating on your prompts
+
+Getting a great prompt takes iteration. Here's the process:
+
+1. Write your first prompt
+2. Test it on 5–10 different inputs
+3. Note where it fails or produces unexpected output
+4. Add a rule or example to address that failure
+5. Repeat until you're satisfied with 90%+ of outputs
+
+Keep a document of your prompt iterations — it's your product's "source of truth" and will be valuable if you ever want to switch models or optimize further.
+
+## Healthcare-specific prompting tips
+
+**Always specify the intended audience.** "Explain this to a patient" vs. "Explain this to an emergency physician" produces very different output quality.
+
+**Specify reading level for patient-facing content.** "Write at a 6th-grade reading level. Avoid medical jargon."
+
+**Request citations or caveats on clinical claims.** "Cite the clinical guideline or evidence source for any factual claims. If uncertain, say so."
+
+**Test with adversarial inputs.** What does your tool return if a user inputs something harmful, nonsensical, or outside its intended scope? Design for this — either in the prompt ("If the user asks about [out-of-scope topic], respond with [redirect]") or in your UI.
+
+**Prefer "show your reasoning" for diagnostic tasks.** "Explain your reasoning before giving your final answer" produces outputs that clinicians can actually evaluate and trust.
+
+## Common mistakes
+
+**Too vague:** "Summarize this." → Give format, length, audience, and purpose.
+
+**No role:** A generic "helpful assistant" will produce generic output. Give it a specific clinical role.
+
+**No examples:** For structured output tasks, include at least one example of what "good" looks like.
+
+**Assuming the model knows your context:** The model has no idea your product is for ICU nurses, or that your hospital uses EPIC, or that your users are non-English speakers. Tell it everything relevant.
+
+**Optimizing too early:** Get it working first, then optimize. Don't spend three days perfecting your prompt before you have a product.
+
+## Using Claude to write your prompts
+
+Prompt engineering has gotten meta — you can ask Claude to help write and improve your prompts. Try:
+
+"I'm building a clinical note summarization tool for emergency physicians. Here's my current prompt: [prompt]. The outputs are too long and don't consistently highlight critical findings. How should I revise it?"
+
+Claude is exceptionally good at prompt improvement tasks.

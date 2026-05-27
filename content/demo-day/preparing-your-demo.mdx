@@ -1,0 +1,116 @@
+---
+title: "Preparing Your Demo"
+section: demo-day
+icon: device-laptop
+updatedAt: "May 27, 2026"
+published: true
+order: 3
+---
+
+The live demo is the heart of your Demo Day presentation. This guide covers the technical and practical preparation needed to make it go smoothly.
+
+## What "live demo" means
+
+A live demo means you open your actual product in a browser and use it in real time in front of the judges. Not a video recording. Not a slide with screenshots. Not a Figma clickthrough.
+
+This is a higher bar than you might be used to from class presentations — and it's one of the things that makes Demo Day exciting and credible.
+
+## Demo structure (2–3 minutes)
+
+Your demo should cover the **core user journey end-to-end**:
+
+1. Show the user's starting point (the problem state)
+2. Show how they interact with your product
+3. Show the output or result
+4. Show what the user does next
+
+Example for a clinical note summarizer:
+1. "Here's the note a nurse has at the end of their shift — 4 paragraphs of unstructured text." (Show it)
+2. "She pastes it into our tool and clicks Summarize." (Do it live)
+3. "10 seconds later, here's the structured SOAP summary." (Show it appearing)
+4. "She reviews it, makes a quick edit, and copies it to her handoff sheet." (Do it)
+
+Total time: ~90 seconds. The rest of your demo time can be used to show a second use case, highlight a key feature, or answer judge questions.
+
+## Choosing what to demo
+
+Demo the **happy path** — the core use case where everything works as intended, with realistic data.
+
+**Do demo:**
+- The most impressive, clearest example of your product doing what it's supposed to do
+- Features that directly demonstrate your core value proposition
+- A real (de-identified or synthetic) data example that makes the output look like the real world
+
+**Don't demo:**
+- Half-finished features
+- Edge cases or error states
+- The sign-up or onboarding flow (unless that IS the product)
+- Anything you're not 100% confident works reliably
+
+## Technical preparation
+
+### 1. Use pre-loaded data
+Don't type input during the demo. Pre-load your demo data in advance so you can paste it in with a single keystroke. The audience doesn't need to watch you type.
+
+Keep a document open with:
+- Your demo input text (the clinical note, the patient info, the question)
+- Any secondary inputs for a second scenario
+
+### 2. Test on the day-of machine
+If you're using a shared conference laptop or projector, test your product on that machine before your slot. Log out of accounts you don't want visible. Close other browser tabs.
+
+### 3. Use a guest browser profile
+Create a guest browser profile or use incognito mode for your demo. This avoids autofill surprises, cached credentials from other accounts, and notifications popping up during the demo.
+
+### 4. Test on the Demo Day WiFi
+Conference WiFi is often slower than you expect. Test your app's performance on a mobile hotspot if you can — that's what you'll fall back to if the venue WiFi is slow. Make sure your API calls complete within an acceptable time on a slower connection.
+
+### 5. Have a screen recording ready
+Record a 2–3 minute screen recording of your demo (the happy path, narrated) using Loom or QuickTime. If your live demo fails, you can switch to the recording immediately.
+
+Keep the recording tab open in your browser during your presentation. If anything goes wrong: "Let me show you a recording I made earlier..." Judges understand.
+
+### 6. Check your API key and rate limits
+The night before Demo Day, confirm your API key is active and your team has credits remaining. Log into the Anthropic console and verify.
+
+If you're worried about hitting rate limits during the event (unlikely but possible if many teams are simultaneously demoing), contact your program facilitator — they can request a temporary limit increase.
+
+## Rehearsal schedule
+
+| When | What |
+|---|---|
+| Week 8 | First run-through with your team — just to get the words out |
+| Week 9 | Mentor feedback session — practice full pitch + demo, get critique |
+| Week 9 | Second practice with a different audience (another team, a friend, family member) |
+| Day before Demo Day | Final run-through, check all tech, record your backup |
+| Demo Day morning | One more run-through before doors open |
+
+## Narrating the demo
+
+During the live demo, narrate what you're doing and why it matters. Don't go silent while you click.
+
+**Good narration:**
+- "I'm pasting in a discharge note from a patient with complex comorbidities — this is the kind of note that typically takes a nurse 20 minutes to turn into a handoff document..."
+- "You can see the AI has identified the critical findings and flagged the follow-up items in red — those are the things that can't fall through the cracks at shift change..."
+- "If the nurse wants to add something the AI missed, she can edit inline here..."
+
+**Avoid:**
+- Going silent for more than 5 seconds
+- Saying "um" repeatedly while waiting for the API to respond — narrate the wait: "While the model processes this — usually about 10 seconds — the nurse could be preparing the next patient's note..."
+- Apologizing for the product ("sorry, this is a bit rough..."). Confidence.
+
+## If something goes wrong
+
+Stay calm. Judges have seen technical failures at every Demo Day they've ever attended. What they're evaluating is your composure and your knowledge — not whether your app has bugs.
+
+Scenarios and responses:
+
+**API times out:** "Our API provider occasionally has latency spikes — let me pull up the recording I made earlier that shows this exact scenario." Switch to recording.
+
+**App doesn't load:** "We've been having some intermittent issues with our hosting — let me switch to a local version." Have a local fallback if possible.
+
+**Unexpected error message:** "We have a known issue with this edge case — let me show you the flow with our test data instead." Have a backup input ready.
+
+**Complete demo failure:** Stay calm, switch to your backup recording, and be honest: "We're having a technical issue. Let me show you a recording and walk you through what you're seeing." Then nail the Q&A.
+
+The teams that handle failures gracefully often make a better impression than teams whose demos run flawlessly but whose founders don't really know their product.

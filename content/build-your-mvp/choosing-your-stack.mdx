@@ -1,0 +1,104 @@
+---
+title: "Choosing How to Build"
+section: build-your-mvp
+icon: tools
+updatedAt: "May 27, 2026"
+published: true
+order: 1
+---
+
+The most important decision after scoping your MVP is how you'll build it. The right choice depends on your team's background, your project's needs, and how much time you have. Here's a framework for making that decision.
+
+## The spectrum of approaches
+
+```
+No-code ←————————————————————————————→ Full code
+
+Typeform  Glide  Bubble  Retool  Next.js + Claude API  Full custom
+(1 day)  (1 day) (1 wk)  (1 wk)       (2-3 wks)         (months)
+```
+
+**The rule:** Choose the simplest approach that can demonstrate your core user story. You can always move "rightward" later. Moving "leftward" (simplifying) is hard once you've built something complex.
+
+## Option 1: No-code tools (recommended for most teams)
+
+**Best for:** Teams with no or minimal coding experience. Projects where the core value is the AI output, not a complex user interface.
+
+**What you can build:** Functional web apps, data collection tools, AI-powered workflows, dashboards, mobile-friendly experiences.
+
+**Time to first working prototype:** 1–5 days.
+
+See the full [No-code tools guide](/build-your-mvp/no-code-tools) for specific tool comparisons and step-by-step guides.
+
+**Top tools:**
+- **Bubble** — Most powerful no-code platform. Full web app with database, user accounts, complex logic.
+- **Glide** — Best for mobile-friendly apps built from Google Sheets. Great for simple forms and display.
+- **Webflow** — Best for beautiful marketing sites or content-heavy apps with less interactivity.
+- **Framer** — Great for interactive prototypes that look like real products.
+
+## Option 2: AI-first builders (emerging in 2026)
+
+A new generation of tools lets you describe your app in plain English and have AI generate it. These are getting remarkably capable and are worth trying first.
+
+- **v0.dev (Vercel)** — Describe a UI; get a React component you can deploy. No coding required.
+- **Bolt.new** — Describe your full app; it generates the code and a live preview. Can deploy in minutes.
+- **Lovable** — Similar to Bolt; focused on shipping full-stack apps from natural language.
+- **Cursor** — A code editor where AI writes most of the code for you. Better if you have some coding familiarity.
+
+**When to use:** When you want something custom-looking but don't want to use a no-code platform. The output is real code, so you or a technical collaborator can modify it.
+
+**Tradeoff:** AI-generated code can have bugs, and debugging requires more technical knowledge than a no-code platform. But for a demo, these tools can produce impressive results very quickly.
+
+<Callout type="tip" title="Try Bolt first">
+If you're not sure what to use, try describing your app to Bolt.new. It takes 10 minutes, you'll get a working prototype, and you'll immediately know whether it's good enough or whether you need a different approach. Zero commitment.
+</Callout>
+
+## Option 3: Technical collaboration
+
+If your team has someone with coding experience, or you can recruit a technical co-builder, you have significantly more flexibility.
+
+**Common technical stacks for healthcare MVPs:**
+- **Next.js + Vercel** — Fast to deploy, great for web apps. Connects easily to the Claude API.
+- **Python + Flask/FastAPI** — Good for data-heavy or ML-adjacent projects. Runs on any cloud.
+- **Streamlit** — Python library that turns data scripts into web UIs. Excellent for demos of AI/data projects with minimal frontend work.
+
+**For teams with a developer:**
+See the [Technical building guide](/build-your-mvp/technical-building) for setup instructions and recommended architectures.
+
+## Decision guide
+
+| Your situation | Recommended approach |
+|---|---|
+| No team member has coding experience | Bubble + Claude API, or Bolt.new |
+| One team member knows Python | Streamlit + Claude API |
+| One team member knows JavaScript/React | Next.js + Claude API |
+| Your MVP is mainly a survey/screener | Typeform + Make + Claude |
+| Your MVP is mainly data visualization | Retool or Streamlit |
+| Your MVP involves image upload + AI | Bubble with file upload + Claude/MedGemma API |
+| You need a mobile app | Glide (if data-driven) or a mobile-responsive Bubble app |
+
+## What you don't need
+
+**A mobile app.** Unless your core use case requires a native phone feature (camera, push notifications, GPS), a mobile-responsive web app is enough. Build for mobile web first.
+
+**User authentication.** For your MVP demo, you can skip login. Let anyone access the tool. Add auth later.
+
+**EHR integration.** EHR integrations require vendor agreements and months of development. For your MVP, use manual data entry or a CSV upload to simulate EHR data.
+
+**A database.** Many simple MVPs can store data in Google Sheets (via Make or Glide's native connector) instead of a real database. This is fine for a demo.
+
+**A custom domain.** Your Bubble app URL (yourapp.bubbleapps.io) or Vercel URL is fine for Demo Day. A custom domain is nice but not necessary.
+
+## Starting points by project type
+
+**Clinical note tool** → Bubble app with text input + Claude API connector
+
+**Patient education chatbot** → Bubble or a simple HTML page with Claude API for Q&A
+
+**Screening/triage tool** → Typeform for intake + Make to process + Claude to generate output
+
+**Imaging analysis tool** → Bubble with file upload + MedGemma API for analysis
+
+**Data dashboard** → Google Sheets as data source + Retool or Streamlit for visualization
+
+**Clinical workflow tool** → Bubble with database + Claude for AI features

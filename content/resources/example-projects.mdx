@@ -1,0 +1,108 @@
+---
+title: "Example Project Ideas"
+section: resources
+icon: bulb
+updatedAt: "May 27, 2026"
+published: true
+order: 4
+---
+
+Looking for inspiration, or trying to understand what's in scope for the fellowship? Here are example projects that illustrate the range of what Catalyst teams can build — using the tools available to you.
+
+<Callout type="info" title="These are examples, not prescriptions">
+These ideas are meant to spark your thinking. The best Catalyst projects come from real problems you or your colleagues have encountered. Use these to understand the scope and feasibility of what's possible, not as a menu to pick from.
+</Callout>
+
+## Clinical documentation tools
+
+**Shift handoff summarizer**
+A nurse pastes raw notes from her shift; the tool generates a structured SBAR handoff in under 10 seconds.
+- *Built with:* Bubble + Claude API
+- *Core challenge:* Getting the SBAR format consistent across different input styles
+- *Why it works as an MVP:* Single user action, single AI output, immediately demonstrable value
+
+**Discharge instruction simplifier**
+Physician pastes discharge instructions; tool rewrites them at a 6th-grade reading level, then optionally translates to Spanish.
+- *Built with:* Bubble or simple web form + Claude API
+- *Core challenge:* Maintaining clinical accuracy while simplifying language
+- *Why it works as an MVP:* Solves a real, documented problem (health literacy) with one AI step
+
+**Prior authorization letter generator**
+Clinician inputs diagnosis, requested treatment, and clinical rationale; tool drafts a prior auth letter in the format required by major insurers.
+- *Built with:* Typeform (intake) + Make (automation) + Claude API
+- *Core challenge:* Different payers have different requirements — start with one payer
+- *Why it works as an MVP:* Saves clinicians 30–60 minutes per prior auth request
+
+## Patient-facing tools
+
+**Condition-specific FAQ chatbot**
+Patients with a specific condition (e.g., newly diagnosed type 2 diabetes) can ask questions and get evidence-based answers in plain language.
+- *Built with:* Bubble with chat UI + Claude API with a clinical system prompt
+- *Core challenge:* Keeping answers accurate and appropriately cautious; knowing when to refer to a physician
+- *Why it works as an MVP:* High demand, immediately usable, clear scope
+
+**Pre-procedure anxiety tool**
+Patient is told they'll have a colonoscopy; they can chat with an AI that explains what to expect, in plain language, at any time of day.
+- *Built with:* Simple web chatbot (Claude API + minimal frontend)
+- *Core challenge:* Tone — needs to be warm and reassuring, not clinical
+- *Why it works as an MVP:* Addresses a well-documented problem (procedure anxiety) with minimal infrastructure
+
+**Post-discharge medication reminder and explainer**
+Patient receives their discharge medications as a text or form; tool generates a plain-language explanation of each medication and when to take it.
+- *Built with:* Typeform (intake) + Make + Claude API + email or SMS output
+- *Core challenge:* Accuracy on medication information; appropriate safety disclaimers
+- *Why it works as an MVP:* No frontend development needed; pipeline is purely automation
+
+## Clinical decision support
+
+**Differential diagnosis assistant (for education)**
+Medical student inputs a set of symptoms; tool returns a structured differential with reasoning, for educational use.
+- *Built with:* Bubble + MedGemma or Claude API
+- *Core challenge:* Making it clearly educational, not clinical decision-making; avoiding overconfident outputs
+- *Why it works as an MVP:* MedGemma is particularly strong at clinical reasoning tasks; clear educational framing sidesteps regulatory concerns
+
+**Drug interaction checker**
+Clinician or patient inputs two or more medications; tool returns interaction profile, severity, and management recommendations.
+- *Built with:* Glide (simple mobile UI) + Claude API, or a Typeform + Make pipeline
+- *Core challenge:* Accuracy; need to be clear this is for informational purposes, not clinical decision-making
+- *Why it works as an MVP:* High utility, well-defined output, low UX complexity
+
+**Imaging observation tool (MedGemma)**
+User uploads a medical image (chest X-ray, dermatology photo); MedGemma returns structured observations for clinician review.
+- *Built with:* Bubble (file upload) + MedGemma multimodal API
+- *Core challenge:* Clear framing as "preliminary observations for clinician review," not diagnosis
+- *Why it works as an MVP:* Directly demonstrates MedGemma's most distinctive capability; compelling demo
+
+## Research and operations tools
+
+**Clinical trial eligibility screener**
+User inputs patient characteristics; tool checks against a specific trial's inclusion/exclusion criteria and flags eligibility.
+- *Built with:* Typeform (intake) + Make + Claude API
+- *Core challenge:* Getting the criteria right; keeping up-to-date with protocol amendments
+- *Why it works as an MVP:* Solves a real coordination problem for research coordinators
+
+**Referral intake processor**
+Incoming referral emails or fax-to-email are processed by AI to extract structured data (patient name, referring physician, reason for referral, urgency) and populate a tracking spreadsheet.
+- *Built with:* Gmail + Make (trigger on new email) + Claude API + Google Sheets
+- *Core challenge:* Variable referral formats; extracting structured data reliably
+- *Why it works as an MVP:* Zero frontend work; pipeline runs automatically on existing workflows
+
+**Research data summarizer**
+Researcher uploads a CSV of de-identified patient data; tool generates a plain-language summary of key patterns and suggests relevant analyses.
+- *Built with:* Streamlit (Python) + Claude API with data analysis capabilities
+- *Core challenge:* Handling varied data formats; generating genuinely useful insights vs. generic summaries
+- *Why it works as an MVP:* Strong Streamlit template; Claude is excellent at data summarization
+
+## What makes a good MVP project
+
+Looking across all these examples, good MVP projects for Catalyst share these traits:
+
+1. **One core user action** — The user does one thing (pastes text, uploads a file, fills a form). The complexity lives in the AI processing, not the UI.
+
+2. **Demonstrable output** — The result is visible and evaluable. You can show it on screen in 10 seconds.
+
+3. **Real problem** — The problem has been validated through at least 3 user interviews. Someone, somewhere is asking for this.
+
+4. **Achievable in 6 weeks** — No EHR integration. No FDA-regulated claims. No mobile native app. Works in a browser.
+
+5. **AI as the core value** — The AI isn't a nice add-on — it's what makes the product 10x better than the current alternative.

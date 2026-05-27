@@ -1,0 +1,71 @@
+---
+title: "Designing for Healthcare"
+section: your-project
+icon: heart
+updatedAt: "May 27, 2026"
+published: true
+order: 4
+---
+
+Healthcare products have unique design constraints that most consumer software ignores. Understanding them will make your MVP more realistic and your Demo Day pitch much more credible.
+
+## The healthcare user context
+
+Your users are operating under constraints that are very different from a typical consumer app:
+
+- **Cognitive load:** A physician in the middle of an ICU shift is managing 10+ patients simultaneously. Every second your tool takes is a second away from patient care.
+- **High-stakes errors:** A medication error in a consumer finance app is annoying. A medication error in a clinical tool can kill someone. Error states and edge cases matter enormously.
+- **Workflow integration:** If your tool requires the user to switch contexts (leave the EHR, open a new browser tab, log in again), they won't use it. Meet users in their workflow, not outside of it.
+- **Institutional trust:** Clinicians trust tools that have been validated, reviewed by peers, or endorsed by their institution. A beautiful product from a stranger with no evidence behind it won't be adopted, regardless of how good it is.
+
+## Design principles for clinical tools
+
+### 1. Speed over beauty
+In a clinical environment, a fast, functional tool beats a beautiful slow one every time. If your AI feature takes 30 seconds to respond when a clinician needs an answer in 5, that's a design failure — even if the answer is great.
+
+### 2. Show your work
+Healthcare users want to know where information came from. "Here's a summary" is less trusted than "Here's a summary, generated from the following sources." Build in citations, source references, or at minimum, confidence indicators.
+
+### 3. Make the right action the easy action
+If a nurse has to click 7 times to accomplish a task they currently do in 2 steps, your tool is worse than the status quo. Design the core action to be as few clicks as possible.
+
+### 4. Never block the user
+Don't require a user to complete a step before proceeding if it's not strictly necessary. Don't show errors that require calling your support line. Don't disable the submit button for unclear reasons. In a clinical context, a blocked user is a harm event.
+
+### 5. Think about who else is in the room
+Clinical encounters often involve multiple people — the patient, a family member, a student. Design for the full context, not just the user you imagined.
+
+## Patient-facing design
+
+If your tool is patient-facing, additional considerations apply:
+
+**Reading level:** CDC guidelines recommend writing patient materials at a 6th-grade reading level. Run your outputs through a readability checker. Claude can help: "Rewrite this at a 6th-grade reading level."
+
+**Language access:** In the US, a significant portion of patients have limited English proficiency. Consider whether multilingual support is part of your MVP or a future iteration.
+
+**Health literacy:** Medical jargon ("myocardial infarction," "contraindicated," "titrate") is invisible to clinicians and confusing to patients. Use plain language.
+
+**Emotional tone:** Patients using your tool are often scared, in pain, or overwhelmed. Your copy and interface design should convey care and clarity — not clinical sterility.
+
+**Accessibility:** Color contrast, font size, and screen reader compatibility matter especially for older patients or those with visual impairment.
+
+## Quick design checklist for your MVP
+
+Before Demo Day, run through this:
+
+- [ ] Can the core task be completed in under 3 steps?
+- [ ] Is the output presented in a format the user can act on immediately?
+- [ ] Does the tool indicate what data it used to generate its output?
+- [ ] Is error language human-readable (not "Error 500")?
+- [ ] If patient-facing: is the reading level appropriate?
+- [ ] Have you shown the prototype to at least one person who isn't on your team?
+
+## Design tools (free)
+
+- **Figma** — Industry-standard design tool, free tier is plenty for MVP mockups. Great for making wireframes before you build.
+- **v0.dev** — Describe a UI in words; it generates a React component. Useful for quickly prototyping UI without a designer.
+- **Claude** — You can ask Claude to generate a color palette, write interface copy, suggest layout structure, or even produce HTML/CSS for a simple UI.
+
+<Callout type="tip" title="Ugly is fine">
+Your MVP does not need to look polished. Judges at Demo Day know the difference between "rough because it's an MVP" and "rough because it was poorly thought out." What they want to see is that you understand your user and that the core functionality works. A functional ugly product beats a beautiful mockup every time.
+</Callout>

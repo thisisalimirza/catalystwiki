@@ -1,0 +1,163 @@
+---
+title: "Using Claude (Anthropic)"
+section: build-with-ai
+icon: robot
+updatedAt: "May 27, 2026"
+published: true
+order: 2
+---
+
+Claude is the AI model built by Anthropic. As a Catalyst fellow, your team has access to **$30,000 in Anthropic API credits** — enough to power a serious application without worrying about cost during the fellowship.
+
+This guide covers everything from zero to a working Claude-powered feature in your product.
+
+## Step 1: Get your API key
+
+Your team's API key is managed by the MDplus Anthropic organization account.
+
+1. Email **catalyst@mdplus.community** with your team name and the email address you want associated with the key
+2. Arvind Rajan will issue you a named API key with an allocated credit budget
+3. You'll receive a key that looks like: `sk-ant-api03-...`
+4. **Keep your API key private.** Never share it in Slack, paste it into a public document, or commit it to a GitHub repository.
+
+<Callout type="warning" title="API key security">
+Your API key is like a password that costs money. If someone gets your key, they can use your credit allocation. Store it as an environment variable or in your no-code tool's secure settings — never hardcode it in any file that could be shared.
+</Callout>
+
+## Step 2: Understand what you're paying for
+
+The API charges per token (roughly, per word). For context:
+- 1,000 tokens ≈ 750 words
+- With $30,000 in credits, your team can make roughly **hundreds of thousands of API calls** at typical healthcare text lengths
+
+For an MVP that handles a few hundred users and typical clinical text inputs, you will not come close to exhausting your allocation during the fellowship. Don't optimize for cost — optimize for what works.
+
+**Which model to use:** Use **Claude Sonnet** (claude-sonnet-4-6 or the latest Sonnet) for your MVP. It's fast, accurate, and more cost-efficient than Opus. Use Opus only for the most complex reasoning tasks.
+
+## Step 3: Use Claude without code first
+
+Before building anything, use [claude.ai](https://claude.ai) — the chat interface — to test your prompts. This is how you figure out what instructions produce the output you want, before wiring anything up.
+
+For example, if you're building a discharge summary tool:
+1. Write a system prompt: "You are a clinical documentation assistant. Convert the following clinical notes into a discharge summary using this format: [format]"
+2. Paste in a real (de-identified) or sample clinical note
+3. Evaluate the output. Adjust your prompt. Repeat.
+
+Do this 20–30 times until you're happy with the quality. *Then* build the product interface around it.
+
+## Step 4: Make your first API call
+
+If you're using a no-code tool (recommended for non-technical fellows), see the [No-code AI guide](/build-with-ai/no-code-ai) — you won't need to write code at all.
+
+If you want to make a direct API call, here's the simplest possible example in Python:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(api_key="your-api-key-here")
+
+message = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    system="You are a clinical documentation assistant. Summarize clinical notes into a structured SOAP format.",
+    messages=[
+        {
+            "role": "user",
+            "content": "Patient notes: [paste notes here]"
+        }
+    ]
+)
+
+print(message.content[0].text)
+```
+
+You can run this in Google Colab — a free, browser-based Python environment — without installing anything on your computer. See the [Building guide](/build-your-mvp/google-colab) for setup.
+
+## Step 5: Build it into your product
+
+The typical architecture for a Claude-powered MVP looks like this:
+
+```
+User inputs text → Your frontend (Bubble/web form/etc.) → Claude API → Display output to user
+```
+
+In a no-code tool like Bubble, this is a few clicks:
+1. User fills in a form (their clinical note, patient info, etc.)
+2. A "workflow" in Bubble calls the Claude API (using an API connector plugin)
+3. The response is displayed back to the user
+
+See the step-by-step guides in [Build Your MVP](/build-your-mvp/no-code-tools).
+
+## Practical Claude patterns for healthcare
+
+### Clinical note summarization
+
+```
+System prompt:
+You are an expert clinical documentation specialist. Summarize the following clinical note 
+into a structured format. Use clear headings. Highlight any critical findings, allergies, 
+and active medications. Flag anything that requires urgent follow-up. 
+Output in plain language that a medical professional would find useful.
+
+User message:
+[Paste clinical note here]
+```
+
+### Patient education generator
+
+```
+System prompt:
+You are a patient education specialist. Write clear, compassionate explanations of medical 
+concepts for patients. Always use plain language at a 6th-grade reading level. Avoid medical 
+jargon. When jargon is necessary, define it immediately. Always include when to seek emergency 
+care. Never provide specific medical advice — encourage patients to speak with their care team.
+
+User message:
+Write a patient education sheet about [condition/procedure/medication].
+```
+
+### Prior authorization draft
+
+```
+System prompt:
+You are a medical documentation specialist helping clinicians draft prior authorization 
+requests. Given the patient information provided, draft a prior authorization letter for 
+the requested treatment. Be specific, cite clinical necessity, and use formal medical language. 
+Include placeholder markers like [PHYSICIAN NAME] and [DATE] for information you don't have.
+
+User message:
+Patient: [age, diagnosis, current medications]
+Requested treatment: [treatment/medication/procedure]
+Clinical justification: [clinician's notes on why this is necessary]
+```
+
+### Medication interaction checker (educational use)
+
+```
+System prompt:
+You are a pharmacology reference tool for educational purposes. Given two or more medications, 
+describe known interactions, their mechanism, clinical significance (minor/moderate/major), 
+and management considerations. Always note that this is for educational purposes and clinical 
+judgment should guide actual patient care. Cite drug classes where relevant.
+
+User message:
+Check interactions between: [medication 1] and [medication 2]
+```
+
+## Tips for getting great results
+
+**Be specific in your system prompt.** The system prompt is the set of instructions Claude follows for every message. More specific = more consistent output. Tell it the format you want, the tone, the length, and any rules to follow.
+
+**Use structured output.** Ask Claude to return JSON or formatted text if your tool will process the output programmatically. Example: "Return your response as a JSON object with keys: summary, critical_findings, follow_up_items."
+
+**Add safety guardrails.** For clinical tools, include language like: "Always recommend that the user verify outputs with a licensed clinician before acting on them. This tool is not a substitute for professional medical judgment."
+
+**Test with edge cases.** What happens when a user submits an empty note? Nonsense text? A note in a different language? Test these and add handling in your prompt or your UI.
+
+**Use temperature settings.** For clinical fact-based tasks, lower temperature (more deterministic, less creative) is usually better. For patient education or creative content, a bit more temperature is fine.
+
+## Resources
+
+- [Anthropic documentation](https://docs.anthropic.com) — Full API reference
+- [Claude prompt library](https://docs.anthropic.com/en/prompt-library) — Pre-built prompts for common tasks
+- Ask questions in the **#ai-help** Slack channel — the technical mentors there know the Claude API well

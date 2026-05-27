@@ -67,8 +67,8 @@ export default async function WikiPageRoute({ params }: { params: Promise<{ path
     <WikiShell path={page.path} toc={toc} pages={allPages}>
       <SearchHighlight />
       <nav className="flex items-center gap-1.5 text-[12px] text-muted mb-3 flex-wrap">
-        <Link href="/overview/home" className="hover:text-brand">
-          MDplus Wiki
+        <Link href="/welcome/home" className="hover:text-brand">
+          Catalyst Wiki
         </Link>
         {breadcrumbs.map((crumb, idx) => (
           <span key={crumb.path} className="flex items-center gap-1.5">

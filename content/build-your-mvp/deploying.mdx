@@ -1,0 +1,105 @@
+---
+title: "Getting Your App Live"
+section: build-your-mvp
+icon: rocket
+updatedAt: "May 27, 2026"
+published: true
+order: 4
+---
+
+Your Demo Day demo needs to run live — not from a slide deck, not from a pre-recorded video. It needs to actually work when a judge clicks a button. This guide covers how to deploy your app so it's accessible to anyone with a link.
+
+<Callout type="success" title="Deploy early">
+Don't wait until week 9 to deploy for the first time. Get your app live in week 5, even if it's incomplete. Debugging deployment issues under Demo Day time pressure is a nightmare. Deploy early, deploy often.
+</Callout>
+
+## No-code tools (Bubble, Glide, Webflow)
+
+If you're using a no-code platform, deployment is automatic. Your app is live as soon as you publish it.
+
+**Bubble:**
+- Your app is hosted at `yourapp.bubbleapps.io` by default
+- Click **Deploy to live** in the Bubble editor when you're ready
+- The free tier keeps your app live; you just can't remove Bubble branding
+- For a custom domain: upgrade or point a domain's DNS to Bubble — not required for Demo Day
+
+**Glide:**
+- Your app is live at a Glide link instantly — share it with anyone
+- Free tier includes your app URL and basic hosting
+
+**Webflow:**
+- Publish with one click; hosted at `yoursite.webflow.io`
+- No code to manage; Webflow handles everything
+
+## Streamlit (for Python/data projects)
+
+If you've built a Python-based app using Streamlit:
+
+**Streamlit Community Cloud** is the easiest deployment:
+1. Push your code to a GitHub repository
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect your GitHub account, select your repo, and deploy
+4. Your app is live at `yourapp.streamlit.app` — a shareable URL
+
+Streamlit Community Cloud is free for public repositories. Store your API keys using Streamlit's Secrets management (not hardcoded in code).
+
+## Next.js / React (for technical teams)
+
+**Vercel** is the simplest deployment for Next.js apps (and many other JavaScript frameworks):
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and connect your GitHub
+3. Import your repository — Vercel auto-detects Next.js and configures the build
+4. Set your environment variables (including your Claude API key) in Vercel's dashboard
+5. Every push to `main` automatically redeploys
+
+Your app is live at `yourapp.vercel.app` immediately. Free tier is generous and more than enough for a demo.
+
+**Alternatives:**
+- **Railway** — One-click deployment for backend services, databases, Python apps
+- **Render** — Good for Flask/FastAPI backends or Node.js apps
+- **Google Cloud Run** — If you're already using Google Cloud for MedGemma
+
+## Storing secrets securely
+
+Never put your API key (Claude, MedGemma, etc.) in your code or in a public repository. Use environment variables.
+
+| Platform | How to store secrets |
+|---|---|
+| Vercel | Project Settings → Environment Variables |
+| Streamlit Cloud | App Settings → Secrets |
+| Bubble | Settings → General → Environment Variables |
+| Railway | Project → Variables |
+
+In your code, access them as `os.environ["CLAUDE_API_KEY"]` (Python) or `process.env.CLAUDE_API_KEY` (Node.js).
+
+## Demo Day technical requirements
+
+Make sure your app meets these minimum requirements before Demo Day:
+
+- [ ] **Accessible via URL** — anyone with the link can open it in a browser, no login required
+- [ ] **Works on the Demo Day machine** — test on a laptop you don't own; don't rely on cached login states
+- [ ] **Fast enough** — AI responses within 10 seconds; UI loads within 3 seconds on a standard internet connection
+- [ ] **Has a fallback** — record a screen recording of the happy path in case of live failure
+- [ ] **Mobile-responsive** — not strictly required, but appreciated if judges want to explore on their phone
+- [ ] **No broken features visible** — hide features that don't work. Empty states should show a placeholder, not an error.
+
+## The pre-recorded backup
+
+Even if your live app is solid, have a 2–3 minute screen recording of your happy path ready. Technical gremlins are real (bad WiFi, API timeouts, a browser bug). If something goes wrong during your live demo, calmly switch to the recording and narrate over it.
+
+"Let me show you what it looks like when it's working smoothly — I recorded this earlier." Judges understand.
+
+Record with Loom (free, simple) or QuickTime on Mac.
+
+## Common deployment pitfalls
+
+**"It works on my machine"** — Test your deployed version on a different network and a different device before Demo Day. Things that work locally often break in production.
+
+**Hardcoded localhost URLs** — If your frontend calls `http://localhost:3000`, it won't work when deployed. Use relative URLs or environment variables.
+
+**Missing environment variables** — Set all your API keys in the deployment platform's environment variable settings. The app can't read your local `.env` file.
+
+**Database not seeded** — If your app requires initial data to function, make sure it's populated in the production database, not just your local one.
+
+**Rate limits** — If your demo has many people hitting the Claude API simultaneously (unlikely but possible), you could hit rate limits. Contact the program team in advance if you expect high traffic on Demo Day.
