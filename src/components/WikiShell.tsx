@@ -56,57 +56,6 @@ function MarginToc({ items }: { items: TocItem[] }) {
   );
 }
 
-function ActionButtons({
-  path,
-  onEdit,
-  onNew,
-  onImport,
-  onManage,
-  className = '',
-}: {
-  path: string | null;
-  onEdit: () => void;
-  onNew: () => void;
-  onImport: () => void;
-  onManage: () => void;
-  className?: string;
-}) {
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {path && (
-        <button
-          onClick={onEdit}
-          className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 transition-colors"
-        >
-          <Icons.IconPencil size={13} stroke={1.75} />
-          Edit page
-        </button>
-      )}
-      <button
-        onClick={onNew}
-        className="flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-hairline text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
-      >
-        <Icons.IconPlus size={13} stroke={1.75} />
-        New page
-      </button>
-      <button
-        onClick={onImport}
-        title="Import MDX files"
-        className="flex items-center justify-center h-8 px-2.5 rounded-md border border-hairline text-muted text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
-      >
-        <Icons.IconUpload size={13} stroke={1.75} />
-      </button>
-      <button
-        onClick={onManage}
-        title="Manage pages"
-        className="flex items-center justify-center h-8 px-2.5 rounded-md border border-hairline text-muted text-[12px] font-medium hover:bg-black/[0.03] transition-colors"
-      >
-        <Icons.IconSettings size={13} stroke={1.75} />
-      </button>
-    </div>
-  );
-}
-
 export default function WikiShell({
   path,
   toc,
@@ -132,17 +81,9 @@ export default function WikiShell({
   const openEdit = useCallback(() => {
     if (path) setEditorMode({ kind: 'edit', path });
   }, [path]);
-  const openNew = useCallback(() => setEditorMode({ kind: 'new' }), []);
-  const openManage = useCallback(() => setEditorMode({ kind: 'manage' }), []);
-  const openImport = useCallback(() => setEditorMode({ kind: 'import' }), []);
 
   return (
     <div className="flex-1 min-w-0 relative">
-      {/*
-        3-column layout on xl+: [TOC 160px] [content] [actions 160px]
-        All three columns start at the same pt-8 so TOC label, breadcrumbs,
-        and action buttons all sit on the same horizontal baseline.
-      */}
       <div className="flex justify-center">
 
         {/* Left — sticky "On this page" TOC */}
@@ -154,27 +95,32 @@ export default function WikiShell({
 
         {/* Center — article content */}
         <main className="min-w-0 flex-1 max-w-[820px] px-8 md:px-12 py-8">
-          {/* Action buttons: visible only when columns are hidden */}
-          <ActionButtons
-            path={path}
-            onEdit={openEdit}
-            onNew={openNew}
-            onImport={openImport}
-            onManage={openManage}
-            className="xl:hidden justify-end mb-5"
-          />
+          {/* Edit page button — narrow screens only (wide screens: right column) */}
+          {path && (
+            <div className="xl:hidden flex justify-end mb-5">
+              <button
+                onClick={openEdit}
+                className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 transition-colors"
+              >
+                <Icons.IconPencil size={13} stroke={1.75} />
+                Edit page
+              </button>
+            </div>
+          )}
           {children}
         </main>
 
-        {/* Right — action buttons on wide screens, aligns with breadcrumbs */}
-        <div className="hidden xl:flex w-[160px] shrink-0 pt-8 pl-4 pr-6">
-          <ActionButtons
-            path={path}
-            onEdit={openEdit}
-            onNew={openNew}
-            onImport={openImport}
-            onManage={openManage}
-          />
+        {/* Right — Edit page button on wide screens, aligned with the breadcrumb row */}
+        <div className="hidden xl:flex w-[160px] shrink-0 pt-8 pl-5 pr-6">
+          {path && (
+            <button
+              onClick={openEdit}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 transition-colors whitespace-nowrap"
+            >
+              <Icons.IconPencil size={13} stroke={1.75} />
+              Edit page
+            </button>
+          )}
         </div>
 
       </div>
