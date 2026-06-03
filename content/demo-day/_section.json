@@ -1,5 +1,6 @@
 {
   "label": "Demo Day",
   "icon": "presentation",
-  "order": 60
+  "order": 60,
+  "published": false
 }

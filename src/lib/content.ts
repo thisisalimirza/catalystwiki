@@ -9,6 +9,7 @@ export interface SectionMeta {
   label: string;
   icon?: string;
   order?: number;
+  published?: boolean;
 }
 
 export interface SectionInfo {
@@ -46,6 +47,8 @@ export function discoverSections(): SectionInfo[] {
           // Ignore parse errors
         }
       }
+
+      if (meta.published === false) continue;
 
       sections.push({
         id: sectionId,
