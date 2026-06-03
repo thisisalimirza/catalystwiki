@@ -59,6 +59,8 @@ export default function Sidebar({
     return expanded;
   });
 
+  const [recentChangesExpanded, setRecentChangesExpanded] = useState(false);
+
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
       const next = new Set(prev);
@@ -104,13 +106,13 @@ export default function Sidebar({
         </button>
 
         {isExpanded && hasChildren && (
-          <div className="ml-2">
+          <div className="ml-3 border-l-2 border-gray-100 pl-1.5 mb-1">
             {/* Render child sections first */}
             {childSections.map(child => renderSection(child))}
 
             {/* Then render pages */}
             {group.pages.length > 0 && (
-              <ul className="ml-1">
+              <ul className="space-y-0.5">
                 {group.pages.map((page) => {
                   const PageIcon = getIcon(page.icon);
                   const href = `/${page.path}`;
@@ -128,7 +130,7 @@ export default function Sidebar({
                         ].join(' ')}
                       >
                         <PageIcon
-                          size={15}
+                          size={14}
                           stroke={1.75}
                           className={active ? 'text-white' : 'text-muted'}
                         />
@@ -211,24 +213,34 @@ export default function Sidebar({
 
       {/* Recent Changes */}
       {recentChanges.length > 0 && (
-        <div className="border-t border-hairline px-3 py-3">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted mb-2">
+        <div className="border-t border-hairline px-3 pt-2 pb-2">
+          <button
+            onClick={() => setRecentChangesExpanded(prev => !prev)}
+            className="w-full flex items-center gap-1.5 text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted hover:text-ink transition-colors py-1"
+          >
+            <Icons.IconChevronRight
+              size={11}
+              stroke={2}
+              className={`transition-transform shrink-0 ${recentChangesExpanded ? 'rotate-90' : ''}`}
+            />
             <Icons.IconHistory size={12} stroke={1.75} />
             Recent Changes
-          </div>
-          <ul className="space-y-1">
-            {recentChanges.slice(0, 3).map((change) => (
-              <li key={change.path}>
-                <Link
-                  href={`/${change.path}`}
-                  className="block py-1 hover:bg-black/[0.03] rounded px-1 -mx-1"
-                >
-                  <div className="text-[12px] text-ink truncate">{change.title}</div>
-                  <div className="text-[10px] text-muted">{formatDate(change.updatedAt)}</div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          </button>
+          {recentChangesExpanded && (
+            <ul className="space-y-1 mt-1">
+              {recentChanges.slice(0, 3).map((change) => (
+                <li key={change.path}>
+                  <Link
+                    href={`/${change.path}`}
+                    className="block py-1 hover:bg-black/[0.03] rounded px-1 -mx-1"
+                  >
+                    <div className="text-[12px] text-ink truncate">{change.title}</div>
+                    <div className="text-[10px] text-muted">{formatDate(change.updatedAt)}</div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
