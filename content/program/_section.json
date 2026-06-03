@@ -1,5 +1,6 @@
 {
   "label": "The Program",
   "icon": "rocket",
-  "order": 20
+  "order": 20,
+  "published": false
 }

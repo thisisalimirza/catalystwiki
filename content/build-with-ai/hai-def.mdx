@@ -1,0 +1,168 @@
+---
+title: "Google HAI-DEF — Health AI Developer Foundations"
+section: build-with-ai
+icon: heart-rate-monitor
+updatedAt: "June 3, 2026"
+published: true
+order: 3
+---
+
+<img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google" style={{height: '30px', marginBottom: '12px', display: 'block'}} />
+
+**Google HAI-DEF (Health AI Developer Foundations)** is one of Catalyst's key program sponsors. They've built and open-sourced a suite of foundation models specifically for healthcare and life sciences — covering medical text, medical imaging, pathology, dermatology, radiology, and health audio. All models are free to use for both research and commercial purposes under the HAI-DEF license.
+
+As a Catalyst fellow, you have direct access to the full HAI-DEF suite. Learn more and explore all models at [goo.gle/hai-def](https://goo.gle/hai-def).
+
+## What is HAI-DEF?
+
+Most AI foundation models are trained on general internet data. They're impressive — but they weren't built for healthcare. HAI-DEF changes that.
+
+Google HAI-DEF is a collection of domain-specific, open-weight foundation models that serve as specialized starting points for health AI development. Instead of fine-tuning a generic model on limited clinical data, you start from a model that was *already* pre-trained on millions of chest X-rays, pathology slides, dermatology images, clinical notes, and health audio recordings.
+
+The result: you can build meaningful clinical AI features with far less data, less compute, and less time than starting from scratch.
+
+## The HAI-DEF model suite
+
+### MedGemma — Medical language + image understanding
+
+MedGemma is the generative flagship of HAI-DEF — Gemma 3 models fine-tuned extensively on medical text and imaging data. If you need an AI that can *understand and generate* clinical language or analyze medical images in a conversational way, MedGemma is your starting point.
+
+| Model | Best for |
+|---|---|
+| **MedGemma 4B** | Fast clinical text tasks — summaries, Q&A, note understanding |
+| **MedGemma 27B** | Complex reasoning, higher accuracy, imaging analysis |
+| **MedGemma Multimodal** | Inputs that include images (X-rays, pathology slides, skin photos) |
+| **MedGemma 1.5 4B** | Extended imaging: CT, MRI, whole-slide histopathology, longitudinal X-ray analysis |
+
+**Strengths:** Clinical Q&A, note summarization, differential diagnosis support, image description, multilingual clinical communication.
+
+**Access:** [Vertex AI Model Garden](https://cloud.google.com/vertex-ai) · [Hugging Face](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def) · [Google AI Studio](https://aistudio.google.com)
+
+→ See the [MedGemma deep-dive guide](/build-with-ai/medgemma-guide) for prompting tips and code examples.
+
+---
+
+### MedSigLIP — Medical vision-language embeddings
+
+MedSigLIP is a vision-language embedding model that encodes both medical images and text into a shared vector space. Unlike MedGemma (which generates text), MedSigLIP is designed for *similarity, search, and zero-shot classification tasks*.
+
+- **Architecture:** 400M parameter vision encoder + 400M parameter text encoder
+- **Image resolution:** 448×448
+- **Trained on:** Chest X-rays, dermatology images, ophthalmology images, histopathology slides, CT slices, MRI volumes — each paired with associated reports or descriptions
+
+**Best use cases for Catalyst MVPs:**
+- Find similar cases in a dataset given a query image or text description
+- Zero-shot classification: "does this X-ray show consolidation?" without labeled training data
+- Build a visual search tool: "show me cases similar to this slide"
+- Multi-modal retrieval: search a clinical image library with text queries
+
+**Access:** [Hugging Face](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def) · [goo.gle/hai-def](https://goo.gle/hai-def)
+
+---
+
+### CXR Foundation — Chest X-ray specialist
+
+CXR Foundation is a dedicated chest X-ray model, pre-trained on over **800,000 chest X-rays** paired with radiology reports. It produces rich, language-aligned embeddings that capture features specifically relevant for chest X-ray interpretation.
+
+**Best use cases:**
+- Data-efficient condition classification (e.g., pneumonia, pneumothorax, pleural effusion) with very few labeled examples
+- Abnormality detection as part of a triage or screening workflow
+- Feature extraction for downstream ML tasks on chest X-ray datasets
+- Educational tools for radiology training
+
+**Why it beats a general model:** Because it was trained on 800,000+ X-rays specifically, it encodes chest X-ray features far more richly than a general vision model could from the same dataset size.
+
+**Access:** [HAI-DEF developer site](https://goo.gle/hai-def) · [Colab quickstart](https://goo.gle/hai-def)
+
+---
+
+### Path Foundation — Pathology & histopathology
+
+Path Foundation is pre-trained on large collections of histopathology image patches (tissue slides at various magnifications). It produces embeddings optimized for computational pathology tasks.
+
+**Best use cases:**
+- Tissue type classification
+- Cancer vs. non-cancer screening support
+- Mitosis detection, tumor microenvironment analysis
+- Digital pathology workflows
+
+**Access:** [HAI-DEF developer site](https://goo.gle/hai-def)
+
+---
+
+### Derm Foundation — Dermatology
+
+Derm Foundation is pre-trained on skin image datasets, giving it deep understanding of visual patterns in dermatological conditions.
+
+**Best use cases:**
+- Skin lesion classification (benign vs. potentially concerning)
+- Condition type screening (eczema, psoriasis, acne, etc.)
+- Teledermatology triage tools
+- Patient-facing skin health apps
+
+**Access:** [HAI-DEF developer site](https://goo.gle/hai-def)
+
+---
+
+### Health Acoustics — Audio-based health signals
+
+Health Acoustics models are trained on recordings of health-relevant sounds — coughs, breathing patterns, and other audio signals associated with respiratory and other conditions.
+
+**Best use cases:**
+- Cough-based screening tools (COVID-19, TB, asthma)
+- Respiratory rate estimation
+- COPD or asthma monitoring apps
+- Passive health signal collection from mobile devices
+
+**Access:** [HAI-DEF developer site](https://goo.gle/hai-def)
+
+---
+
+## Which model should you use?
+
+| Your project involves... | Recommended HAI-DEF model |
+|---|---|
+| Clinical note summarization / Q&A | MedGemma 4B |
+| Medical image description (conversational) | MedGemma Multimodal |
+| Complex clinical reasoning | MedGemma 27B |
+| CT or MRI analysis | MedGemma 1.5 4B |
+| Chest X-ray classification / screening | CXR Foundation |
+| Pathology / tissue analysis | Path Foundation |
+| Skin condition screening | Derm Foundation |
+| Image similarity search or zero-shot classification | MedSigLIP |
+| Cough or breathing analysis | Health Acoustics |
+
+## How to access HAI-DEF models
+
+All HAI-DEF models are free and open under the HAI-DEF license (research and commercial use permitted).
+
+**Option 1: Google AI Studio (fastest, no setup)**
+Go to [aistudio.google.com](https://aistudio.google.com) and select a MedGemma model. No credentials required. Great for initial exploration.
+
+**Option 2: Vertex AI Model Garden (recommended for MVP builds)**
+1. Sign up for a Google Cloud account (free tier works to start)
+2. Email catalyst@mdplus.community with "HAI-DEF access request — [Team name]"
+3. The HAI-DEF team will provision Vertex AI access with your fellowship credentials
+4. Access any HAI-DEF model via the [Vertex AI API](https://cloud.google.com/vertex-ai)
+
+**Option 3: Hugging Face (open weights, run anywhere)**
+All open-weight models are available on Hugging Face at the [HAI-DEF collection](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def). Run locally, on Google Colab, or via Hugging Face's Inference API. More technical, but no Google Cloud account required.
+
+**Option 4: Colab notebooks**
+HAI-DEF ships instructional Colab notebooks for each model — you can run them directly in your browser with zero local setup. Find them at [goo.gle/hai-def](https://goo.gle/hai-def).
+
+## Licensing
+
+All HAI-DEF models are released under the **HAI-DEF license** — open and free for both research and commercial purposes. This is meaningfully different from many healthcare AI models that restrict commercial use. For your fellowship MVP and beyond, you can build on these models without licensing concerns.
+
+## Support from the HAI-DEF team
+
+As a Catalyst fellow, you have direct access to the Google HAI-DEF team:
+
+- **#google-hidef** Slack channel — Post technical questions directly to the HAI-DEF team
+- **Office hours** — Request a slot via your program facilitator; the HAI-DEF team has committed to being available for fellows
+- **HAI-DEF forum** — [discuss.ai.google.dev](https://discuss.ai.google.dev) — public developer community
+
+<Callout type="info" title="New to HAI-DEF? Start here.">
+If your project involves medical imaging, start with **CXR Foundation** (chest X-rays), **Derm Foundation** (skin), or **Path Foundation** (pathology) depending on your domain. If you need conversational AI with clinical knowledge, start with **MedGemma 4B**. When in doubt, post in **#google-hidef** in Slack — the team is responsive and wants to help Catalyst fellows succeed.
+</Callout>
