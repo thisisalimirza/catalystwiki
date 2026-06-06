@@ -524,7 +524,7 @@ function MarkdownPreview({ content, title }: { content: string; title: string })
       }
 
       // Check for LinkCard
-      const linkCardMatch = remaining.match(/^([\s\S]*?)<LinkCard([^/]*)\/?>/);
+      const linkCardMatch = remaining.match(/^([\s\S]*?)<LinkCard([\s\S]*?)\/>/);
       if (linkCardMatch) {
         if (linkCardMatch[1]) {
           elements.push(
@@ -542,7 +542,7 @@ function MarkdownPreview({ content, title }: { content: string; title: string })
       }
 
       // Check for PersonRow
-      const personMatch = remaining.match(/^([\s\S]*?)<PersonRow([^/]*)\/?>/);
+      const personMatch = remaining.match(/^([\s\S]*?)<PersonRow([\s\S]*?)\/>/);
       if (personMatch) {
         if (personMatch[1]) {
           elements.push(
@@ -847,10 +847,12 @@ function SortablePageRow({
 export default function Editor({
   mode,
   onClose,
+  onCommit,
   initialPages,
 }: {
   mode: EditorMode;
   onClose: () => void;
+  onCommit?: () => void;
   initialPages?: Array<{ title: string; path: string; section: string; published?: boolean; order?: number }>;
 }) {
   const router = useRouter();
@@ -1300,8 +1302,9 @@ export default function Editor({
       setOriginalBodyForDiff('');
 
       setToast(
-        `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Vercel will redeploy in ~30s.`
+        `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Deploying…`
       );
+      onCommit?.();
       setTimeout(() => {
         if (mode.kind === 'new') router.push(`/${path}`);
         else router.refresh();
