@@ -847,10 +847,12 @@ function SortablePageRow({
 export default function Editor({
   mode,
   onClose,
+  onCommit,
   initialPages,
 }: {
   mode: EditorMode;
   onClose: () => void;
+  onCommit?: () => void;
   initialPages?: Array<{ title: string; path: string; section: string; published?: boolean; order?: number }>;
 }) {
   const router = useRouter();
@@ -1300,8 +1302,9 @@ export default function Editor({
       setOriginalBodyForDiff('');
 
       setToast(
-        `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Vercel will redeploy in ~30s.`
+        `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Deploying…`
       );
+      onCommit?.();
       setTimeout(() => {
         if (mode.kind === 'new') router.push(`/${path}`);
         else router.refresh();

@@ -1,10 +1,65 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Icons from '@tabler/icons-react';
 import Editor, { type EditorMode } from './Editor';
 import { type TocItem } from './TocPanel';
 import FloatingAI from './FloatingAI';
+
+const DEPLOY_SECONDS = 90;
+
+function DeployToast({ onDismiss }: { onDismiss: () => void }) {
+  const [remaining, setRemaining] = useState(DEPLOY_SECONDS);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setRemaining((s) => {
+        if (s <= 1) {
+          clearInterval(intervalRef.current!);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(intervalRef.current!);
+  }, []);
+
+  const done = remaining === 0;
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  const countdown = `${mins}:${String(secs).padStart(2, '0')}`;
+
+  return (
+    <div className="fixed bottom-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border border-hairline bg-white text-[13px] max-w-xs">
+      {done ? (
+        <>
+          <Icons.IconCircleCheck size={16} stroke={1.75} className="text-emerald-500 shrink-0" />
+          <span className="text-ink font-medium">Live! Refresh to see your changes.</span>
+          <button
+            onClick={() => window.location.reload()}
+            className="ml-1 px-2.5 py-1 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 shrink-0"
+          >
+            Refresh
+          </button>
+        </>
+      ) : (
+        <>
+          <Icons.IconLoader2 size={16} stroke={1.75} className="text-brand shrink-0 animate-spin" />
+          <span className="text-muted">Deploying changes…</span>
+          <span className="font-mono font-medium text-ink tabular-nums">{countdown}</span>
+        </>
+      )}
+      <button
+        onClick={onDismiss}
+        className="ml-auto p-0.5 rounded hover:bg-black/[0.06] text-muted shrink-0"
+        aria-label="Dismiss"
+      >
+        <Icons.IconX size={13} stroke={1.75} />
+      </button>
+    </div>
+  );
+}
 
 function MarginToc({ items }: { items: TocItem[] }) {
   const [active, setActive] = useState<string | null>(items[0]?.id ?? null);
@@ -68,6 +123,7 @@ export default function WikiShell({
   children: React.ReactNode;
 }) {
   const [editorMode, setEditorMode] = useState<EditorMode | null>(null);
+  const [deployToastKey, setDeployToastKey] = useState<number | null>(null);
 
   useEffect(() => {
     function handle(e: Event) {
@@ -129,8 +185,12 @@ export default function WikiShell({
         <Editor
           mode={editorMode}
           onClose={() => setEditorMode(null)}
+          onCommit={() => setDeployToastKey(Date.now())}
           initialPages={pages}
         />
+      )}
+      {deployToastKey !== null && (
+        <DeployToast key={deployToastKey} onDismiss={() => setDeployToastKey(null)} />
       )}
       <FloatingAI currentPath={path} />
     </div>
