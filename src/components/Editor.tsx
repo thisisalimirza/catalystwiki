@@ -524,7 +524,7 @@ function MarkdownPreview({ content, title }: { content: string; title: string })
       }
 
       // Check for LinkCard
-      const linkCardMatch = remaining.match(/^([\s\S]*?)<LinkCard([^/]*)\/?>/);
+      const linkCardMatch = remaining.match(/^([\s\S]*?)<LinkCard([\s\S]*?)\/>/);
       if (linkCardMatch) {
         if (linkCardMatch[1]) {
           elements.push(
@@ -542,7 +542,7 @@ function MarkdownPreview({ content, title }: { content: string; title: string })
       }
 
       // Check for PersonRow
-      const personMatch = remaining.match(/^([\s\S]*?)<PersonRow([^/]*)\/?>/);
+      const personMatch = remaining.match(/^([\s\S]*?)<PersonRow([\s\S]*?)\/>/);
       if (personMatch) {
         if (personMatch[1]) {
           elements.push(
