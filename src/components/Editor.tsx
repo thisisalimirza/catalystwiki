@@ -912,10 +912,10 @@ export default function Editor({
 
   // Editor name for tracking who made changes
   const [editorName, setEditorNameState] = useState<string>('');
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [existingHistory, setExistingHistory] = useState<Array<{ name: string; date: string; summary?: string }>>([]);
   const [editSummary, setEditSummary] = useState<string>('');
   const [summaryMissing, setSummaryMissing] = useState(false);
+  const [nameMissing, setNameMissing] = useState(false);
 
   // AI assistant
   const [showAI, setShowAI] = useState(false);
@@ -935,11 +935,7 @@ export default function Editor({
 
   useEffect(() => {
     const storedName = getEditorName();
-    if (storedName) {
-      setEditorNameState(storedName);
-    } else {
-      setShowNamePrompt(true);
-    }
+    if (storedName) setEditorNameState(storedName);
   }, []);
 
   // Fetch sections on mount
@@ -1240,7 +1236,7 @@ export default function Editor({
 
   async function save() {
     if (!editorName.trim()) {
-      setShowNamePrompt(true);
+      setNameMissing(true);
       setError('Please enter your name before saving');
       return;
     }
@@ -1250,7 +1246,9 @@ export default function Editor({
       return;
     }
 
+    setNameMissing(false);
     setSummaryMissing(false);
+    setEditorName(editorName.trim());
     setError(null);
     setSaving(true);
     try {
@@ -1707,7 +1705,7 @@ export default function Editor({
 
     // Check for editor name
     if (!editorName.trim()) {
-      setShowNamePrompt(true);
+      setNameMissing(true);
       setError('Please enter your name before importing');
       return;
     }
@@ -1836,52 +1834,6 @@ export default function Editor({
           </button>
         </header>
 
-        {/* Editor name prompt - shows once if name not set */}
-        {showNamePrompt && mode.kind !== 'manage' && (
-          <div className="px-5 py-3 bg-brand-50 border-b border-brand-100 flex items-center gap-3">
-            <Icons.IconUser size={16} stroke={1.75} className="text-brand shrink-0" />
-            <span className="text-[13px] text-brand-800">Your name for edit history:</span>
-            <input
-              type="text"
-              value={editorName}
-              onChange={(e) => setEditorNameState(e.target.value)}
-              placeholder="e.g., Ali Mirza"
-              className="flex-1 max-w-[200px] px-2 py-1 text-[13px] border border-brand-200 rounded bg-white focus:outline-none focus:border-brand-400"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && editorName.trim()) {
-                  setEditorName(editorName.trim());
-                  setShowNamePrompt(false);
-                }
-              }}
-            />
-            <button
-              onClick={() => {
-                if (editorName.trim()) {
-                  setEditorName(editorName.trim());
-                  setShowNamePrompt(false);
-                }
-              }}
-              disabled={!editorName.trim()}
-              className="px-3 py-1 text-[12px] font-medium bg-brand text-white rounded hover:bg-brand-600 disabled:opacity-50"
-            >
-              Save
-            </button>
-          </div>
-        )}
-
-        {/* Show current editor name (subtle, when set) */}
-        {!showNamePrompt && editorName && mode.kind !== 'manage' && (
-          <div className="px-5 py-1.5 bg-sidebar border-b border-hairline flex items-center gap-2 text-[11px] text-muted">
-            <Icons.IconUser size={12} stroke={1.75} />
-            <span>Editing as <strong className="font-medium text-ink">{editorName}</strong></span>
-            <button
-              onClick={() => setShowNamePrompt(true)}
-              className="text-brand hover:underline ml-1"
-            >
-              change
-            </button>
-          </div>
-        )}
 
         {/* Import mode UI */}
         {mode.kind === 'import' ? (
@@ -2679,19 +2631,33 @@ Tips:
                 {importLoading ? 'Importing...' : `Import ${importFiles.filter(f => f.status === 'pending').length} pages`}
               </button>
             )}
-            {/* Edit summary input for page editing */}
+            {/* Name + summary inputs for page editing */}
             {mode.kind !== 'manage' && mode.kind !== 'import' && !(mode.kind === 'new' && createType === 'section') && (
-              <input
-                type="text"
-                value={editSummary}
-                onChange={(e) => { setEditSummary(e.target.value); setSummaryMissing(false); }}
-                placeholder="What changed? (required)"
-                className={`w-52 px-2 py-1.5 text-[12px] border rounded-md focus:outline-none transition-colors ${
-                  summaryMissing
-                    ? 'border-red-400 bg-red-50 focus:border-red-400 ring-1 ring-red-200'
-                    : 'border-hairline focus:border-brand-300'
-                }`}
-              />
+              <>
+                <input
+                  type="text"
+                  value={editorName}
+                  onChange={(e) => { setEditorNameState(e.target.value); setNameMissing(false); }}
+                  onBlur={(e) => { if (e.target.value.trim()) setEditorName(e.target.value.trim()); }}
+                  placeholder="Your name (required)"
+                  className={`w-36 px-2 py-1.5 text-[12px] border rounded-md focus:outline-none transition-colors ${
+                    nameMissing
+                      ? 'border-red-400 bg-red-50 focus:border-red-400 ring-1 ring-red-200'
+                      : 'border-hairline focus:border-brand-300'
+                  }`}
+                />
+                <input
+                  type="text"
+                  value={editSummary}
+                  onChange={(e) => { setEditSummary(e.target.value); setSummaryMissing(false); }}
+                  placeholder="What changed? (required)"
+                  className={`w-52 px-2 py-1.5 text-[12px] border rounded-md focus:outline-none transition-colors ${
+                    summaryMissing
+                      ? 'border-red-400 bg-red-50 focus:border-red-400 ring-1 ring-red-200'
+                      : 'border-hairline focus:border-brand-300'
+                  }`}
+                />
+              </>
             )}
             {/* Save button for page editing */}
             {mode.kind !== 'manage' && mode.kind !== 'import' && !(mode.kind === 'new' && createType === 'section') && (
