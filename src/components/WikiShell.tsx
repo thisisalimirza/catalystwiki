@@ -7,23 +7,39 @@ import { type TocItem } from './TocPanel';
 import FloatingAI from './FloatingAI';
 
 const DEPLOY_SECONDS = 90;
+const STORAGE_KEY = 'catalystwiki_deploy_toasts';
+const MAX_AGE_MS = 15 * 60 * 1000; // discard toasts older than 15 min on restore
 
-function DeployToast({ onDismiss }: { onDismiss: () => void }) {
-  const [remaining, setRemaining] = useState(DEPLOY_SECONDS);
+type ToastEntry = { id: number; summary: string; startTime: number };
+
+function loadStoredToasts(): ToastEntry[] {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const all: ToastEntry[] = JSON.parse(raw);
+    return all.filter(t => Date.now() - t.startTime < MAX_AGE_MS);
+  } catch { return []; }
+}
+
+function saveStoredToasts(toasts: ToastEntry[]) {
+  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toasts)); } catch { /* ignore */ }
+}
+
+function DeployToast({ entry, onDismiss }: { entry: ToastEntry; onDismiss: () => void }) {
+  const elapsed = Math.floor((Date.now() - entry.startTime) / 1000);
+  const [remaining, setRemaining] = useState(Math.max(0, DEPLOY_SECONDS - elapsed));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    if (remaining === 0) return;
     intervalRef.current = setInterval(() => {
       setRemaining((s) => {
-        if (s <= 1) {
-          clearInterval(intervalRef.current!);
-          return 0;
-        }
+        if (s <= 1) { clearInterval(intervalRef.current!); return 0; }
         return s - 1;
       });
     }, 1000);
     return () => clearInterval(intervalRef.current!);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const done = remaining === 0;
   const mins = Math.floor(remaining / 60);
@@ -31,30 +47,28 @@ function DeployToast({ onDismiss }: { onDismiss: () => void }) {
   const countdown = `${mins}:${String(secs).padStart(2, '0')}`;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border border-hairline bg-white text-[13px] max-w-xs">
-      {done ? (
-        <>
-          <Icons.IconCircleCheck size={16} stroke={1.75} className="text-emerald-500 shrink-0" />
-          <span className="text-ink font-medium">Live! Refresh to see your changes.</span>
-          <button
-            onClick={() => window.location.reload()}
-            className="ml-1 px-2.5 py-1 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 shrink-0"
-          >
-            Refresh
-          </button>
-        </>
-      ) : (
-        <>
-          <Icons.IconLoader2 size={16} stroke={1.75} className="text-brand shrink-0 animate-spin" />
-          <span className="text-muted">Deploying changes…</span>
-          <span className="font-mono font-medium text-ink tabular-nums">{countdown}</span>
-        </>
-      )}
-      <button
-        onClick={onDismiss}
-        className="ml-auto p-0.5 rounded hover:bg-black/[0.06] text-muted shrink-0"
-        aria-label="Dismiss"
-      >
+    <div className="flex items-start gap-3 w-72 px-4 py-3 rounded-xl shadow-lg border border-hairline bg-white text-[13px]">
+      <div className="shrink-0 mt-0.5">
+        {done
+          ? <Icons.IconCircleCheck size={16} stroke={1.75} className="text-emerald-500" />
+          : <Icons.IconLoader2 size={16} stroke={1.75} className="text-brand animate-spin" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        {entry.summary && <p className="font-medium text-ink truncate mb-0.5">{entry.summary}</p>}
+        {done ? (
+          <p className="text-muted">
+            Live!{' '}
+            <button onClick={() => window.location.reload()} className="text-brand hover:underline font-medium">
+              Refresh to see changes
+            </button>
+          </p>
+        ) : (
+          <p className="text-muted">
+            Deploying… <span className="font-mono font-medium text-ink tabular-nums">{countdown}</span>
+          </p>
+        )}
+      </div>
+      <button onClick={onDismiss} className="shrink-0 p-0.5 rounded hover:bg-black/[0.06] text-muted mt-0.5" aria-label="Dismiss">
         <Icons.IconX size={13} stroke={1.75} />
       </button>
     </div>
@@ -123,7 +137,29 @@ export default function WikiShell({
   children: React.ReactNode;
 }) {
   const [editorMode, setEditorMode] = useState<EditorMode | null>(null);
-  const [deployToastKey, setDeployToastKey] = useState<number | null>(null);
+  const [toasts, setToasts] = useState<ToastEntry[]>([]);
+
+  // Restore any in-progress toasts from sessionStorage on mount (survives page navigation)
+  useEffect(() => {
+    setToasts(loadStoredToasts());
+  }, []);
+
+  const addToast = useCallback((summary: string) => {
+    const entry: ToastEntry = { id: Date.now(), summary, startTime: Date.now() };
+    setToasts(prev => {
+      const next = [...prev, entry];
+      saveStoredToasts(next);
+      return next;
+    });
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts(prev => {
+      const next = prev.filter(t => t.id !== id);
+      saveStoredToasts(next);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     function handle(e: Event) {
@@ -185,12 +221,20 @@ export default function WikiShell({
         <Editor
           mode={editorMode}
           onClose={() => setEditorMode(null)}
-          onCommit={() => setDeployToastKey(Date.now())}
+          onCommit={addToast}
           initialPages={pages}
         />
       )}
-      {deployToastKey !== null && (
-        <DeployToast key={deployToastKey} onDismiss={() => setDeployToastKey(null)} />
+
+      {/* Deploy toasts — stacked above the AI button (bottom-6), newest at bottom */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-20 right-5 z-50 flex flex-col gap-2 items-end pointer-events-none">
+          {toasts.map(t => (
+            <div key={t.id} className="pointer-events-auto">
+              <DeployToast entry={t} onDismiss={() => dismissToast(t.id)} />
+            </div>
+          ))}
+        </div>
       )}
       <FloatingAI currentPath={path} />
     </div>

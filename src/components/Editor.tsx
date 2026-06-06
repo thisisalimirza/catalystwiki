@@ -852,7 +852,7 @@ export default function Editor({
 }: {
   mode: EditorMode;
   onClose: () => void;
-  onCommit?: () => void;
+  onCommit?: (summary: string) => void;
   initialPages?: Array<{ title: string; path: string; section: string; published?: boolean; order?: number }>;
 }) {
   const router = useRouter();
@@ -1304,7 +1304,7 @@ export default function Editor({
       setToast(
         `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Deploying…`
       );
-      onCommit?.();
+      onCommit?.(editSummary.trim());
       setTimeout(() => {
         if (mode.kind === 'new') router.push(`/${path}`);
         else router.refresh();
