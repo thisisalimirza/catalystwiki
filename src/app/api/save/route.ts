@@ -15,7 +15,9 @@ type Body =
   | { action: 'move-section'; token: string; sectionId: string; newParent: string | null; label: string; icon: string; order: number }
   | { action: 'update-page-order'; token: string; path: string; order: number }
   | { action: 'batch-reorder-pages'; token: string; updates: Array<{ path: string; order: number }> }
-  | { action: 'batch-reorder-sections'; token: string; updates: Array<{ sectionId: string; order: number }> };
+  | { action: 'batch-reorder-sections'; token: string; updates: Array<{ sectionId: string; order: number }> }
+  | { action: 'toggle-published'; token: string; path: string }
+  | { action: 'delete-section'; token: string; sectionId: string };
 
 export async function POST(req: NextRequest) {
   let body: Body;
@@ -346,6 +348,73 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json({ success: true, commitSha: result.commitSha });
+    }
+
+    if (body.action === 'toggle-published') {
+      const ok = await verifyToken(body.token);
+      if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      if (!isValidPath(body.path)) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+
+      const filePath = `content/${body.path}.mdx`;
+      const content = await getFileContent(filePath);
+      if (!content) return NextResponse.json({ error: 'File not found' }, { status: 404 });
+
+      const fmMatch = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+      if (!fmMatch) return NextResponse.json({ error: 'Invalid file format' }, { status: 400 });
+
+      const frontmatterLines = fmMatch[1].split('\n');
+      const bodyContent = fmMatch[2];
+      let currentlyPublished = true; // default when field is absent
+      let found = false;
+
+      const updatedLines = frontmatterLines.map(line => {
+        if (line.startsWith('published:')) {
+          found = true;
+          currentlyPublished = !line.includes('false');
+          return `published: ${currentlyPublished ? 'false' : 'true'}`;
+        }
+        return line;
+      });
+
+      if (!found) {
+        // Not in frontmatter → currently published, toggling to draft
+        updatedLines.push('published: false');
+        currentlyPublished = true;
+      }
+
+      const newPublished = !currentlyPublished;
+      const newContent = `---\n${updatedLines.join('\n')}\n---\n${bodyContent}`;
+      const result = await commitFile({
+        filePath,
+        content: newContent,
+        message: `wiki: ${newPublished ? 'publish' : 'unpublish'} ${body.path}`,
+      });
+      return NextResponse.json({ success: true, commitSha: result.commitSha, published: newPublished });
+    }
+
+    if (body.action === 'delete-section') {
+      const ok = await verifyToken(body.token);
+      if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      if (!sectionExists(body.sectionId)) {
+        return NextResponse.json({ error: 'Section does not exist' }, { status: 404 });
+      }
+
+      const files = await listDirectoryFiles(`content/${body.sectionId}`);
+      const blocked = files.filter(f => f.name.endsWith('.mdx') || f.type === 'dir');
+      if (blocked.length > 0) {
+        return NextResponse.json({
+          error: 'Cannot delete: move or delete all pages and sub-sections first.',
+        }, { status: 400 });
+      }
+
+      // Delete only _section.json (and any other non-mdx files)
+      for (const file of files) {
+        if (file.type === 'file') {
+          await deleteFile({ filePath: file.path, message: `wiki: delete section "${body.sectionId}"` });
+        }
+      }
+      return NextResponse.json({ success: true });
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
