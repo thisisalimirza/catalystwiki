@@ -1063,6 +1063,8 @@ export default function Editor({
   const [showDiffReview, setShowDiffReview] = useState(false);
   const [originalBodyForDiff, setOriginalBodyForDiff] = useState('');
   const [originalTitleForDiff, setOriginalTitleForDiff] = useState('');
+  const [formattingWithAI, setFormattingWithAI] = useState(false);
+  const [selectionPopup, setSelectionPopup] = useState<{ x: number; y: number } | null>(null);
 
   // Load editor name from localStorage on mount
   // Lock background scroll while modal is open
@@ -2018,6 +2020,80 @@ export default function Editor({
     setTimeout(() => setAiApplyFlash(false), 1400);
   }
 
+  async function formatSelectionWithAI() {
+    const textarea = textareaRef.current;
+    const selStart = textarea?.selectionStart ?? 0;
+    const selEnd = textarea?.selectionEnd ?? 0;
+    const hasSelection = selStart !== selEnd;
+    const textToFormat = hasSelection ? body.slice(selStart, selEnd) : body;
+
+    if (!textToFormat.trim()) return;
+    setSelectionPopup(null);
+
+    const tok = await ensureToken();
+    if (!tok) return;
+
+    setFormattingWithAI(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: tok,
+          messages: [{
+            role: 'user',
+            content: `Format the following content as wiki markup. Keep every piece of information — just organize it into clean MDX with appropriate headings (##), bullet points, and formatting. Use callout boxes for anything that deserves special emphasis. Do not add or invent content that isn't present.\n\n${textToFormat}`,
+          }],
+          sections: sections.map(s => ({ id: s.id, label: s.label })),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || 'AI formatting failed');
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let fullText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      const contentMatch = fullText.match(/\[WIKI_CONTENT_START\]([\s\S]*?)\[WIKI_CONTENT_END\]/);
+      if (!contentMatch) throw new Error('AI did not return formatted content — try again.');
+
+      const formatted = contentMatch[1].trim();
+      setOriginalBodyForDiff(body);
+      setOriginalTitleForDiff(title);
+      setBody(hasSelection ? body.slice(0, selStart) + formatted + body.slice(selEnd) : formatted);
+      setIsAIGenerated(true);
+      setAiApplyFlash(true);
+      setTimeout(() => setAiApplyFlash(false), 1400);
+
+      if (!hasSelection) {
+        const metaMatch = fullText.match(/\[WIKI_META_START\]([\s\S]*?)\[WIKI_META_END\]/);
+        if (metaMatch) {
+          try {
+            const meta = JSON.parse(metaMatch[1].trim()) as { title?: string; icon?: string };
+            if (meta.title && !title) setTitle(meta.title);
+            if (meta.icon) setIcon(meta.icon);
+          } catch { /* ignore bad meta */ }
+        }
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'AI formatting failed');
+    } finally {
+      setFormattingWithAI(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-3 py-6">
       <div
@@ -2508,10 +2584,10 @@ export default function Editor({
                             ? 'bg-brand text-white border-brand'
                             : 'bg-white border-hairline hover:border-brand-200 hover:bg-brand-50 hover:text-brand text-muted'
                         }`}
-                        title="Open AI Assistant"
+                        title="Open AI chat assistant"
                       >
-                        <Icons.IconSparkles size={14} stroke={1.75} />
-                        AI
+                        <Icons.IconMessages size={14} stroke={1.75} />
+                        Ask AI
                       </button>
                     </div>
                   </div>
@@ -2555,8 +2631,22 @@ export default function Editor({
                       <textarea
                         ref={textareaRef}
                         value={body}
-                        onChange={(e) => setBody(e.target.value)}
+                        onChange={(e) => { setBody(e.target.value); setSelectionPopup(null); }}
                         spellCheck={false}
+                        onMouseUp={(e) => {
+                          const ta = textareaRef.current;
+                          if (!ta) return;
+                          if (ta.selectionStart !== ta.selectionEnd) {
+                            setSelectionPopup({ x: e.clientX, y: e.clientY });
+                          } else {
+                            setSelectionPopup(null);
+                          }
+                        }}
+                        onKeyUp={() => {
+                          const ta = textareaRef.current;
+                          if (!ta || ta.selectionStart === ta.selectionEnd) setSelectionPopup(null);
+                        }}
+                        onBlur={() => setTimeout(() => setSelectionPopup(null), 150)}
                         onKeyDown={(e) => {
                           if (e.metaKey || e.ctrlKey) {
                             if (e.key === 'b') {
@@ -2576,13 +2666,13 @@ export default function Editor({
                             ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100'
                             : 'border-hairline bg-[#FBFAF7]'
                         }`}
-                        placeholder="Start writing your page content here...
+                        placeholder="Don't know MDX? Just write freely in plain English.
 
-Tips:
-• Use ## Heading for section titles (shows in table of contents)
-• Use the toolbar above to format text
-• Select text first, then click Bold or Italic to format it"
+Write your notes, bullet points, or paragraphs — then select any text (or Ctrl+A for everything) and a 'Format with AI' button will appear to structure it automatically.
+
+Or use the toolbar above if you prefer to format manually."
                       />
+
                       <div className="text-[11px] text-muted flex items-center gap-3 flex-wrap">
                         <span>
                           <kbd className="px-1 py-0.5 bg-sidebar rounded text-[10px]">Ctrl+B</kbd> Bold
@@ -3042,6 +3132,36 @@ Tips:
           </div>
         </footer>
         </div>{/* end main editor column */}
+
+        {/* Format with AI floating popup — appears on text selection in the textarea */}
+        {selectionPopup && activeTab === 'edit' && (
+          <div
+            style={{
+              position: 'fixed',
+              top: selectionPopup.y - 48,
+              left: selectionPopup.x,
+              transform: 'translateX(-50%)',
+            }}
+            className="z-[300] flex items-center gap-1.5 bg-gray-900 text-white text-[12px] font-medium px-3 py-2 rounded-lg shadow-xl pointer-events-auto"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {formattingWithAI ? (
+              <>
+                <Icons.IconLoader2 size={13} stroke={2} className="animate-spin" />
+                Formatting…
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={formatSelectionWithAI}
+                className="flex items-center gap-1.5 hover:text-brand-200 transition-colors"
+              >
+                <Icons.IconSparkles size={13} stroke={1.75} />
+                Format with AI
+              </button>
+            )}
+          </div>
+        )}
 
         {/* AI Assistant panel */}
         {showAI && (
