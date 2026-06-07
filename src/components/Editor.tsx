@@ -631,6 +631,7 @@ function SortableSectionRow({
   onStartEdit,
   onCancelEdit,
   onSave,
+  onDelete,
   sections,
   getIconComponent,
 }: {
@@ -642,6 +643,7 @@ function SortableSectionRow({
   onStartEdit: () => void;
   onCancelEdit: () => void;
   onSave: () => void;
+  onDelete: () => void;
   sections: SectionInfo[];
   getIconComponent: (name: string) => React.ComponentType<IconProps>;
 }) {
@@ -727,13 +729,10 @@ function SortableSectionRow({
           <span className="text-muted font-mono text-[11px]">{section.icon || 'folder'}</span>
         )}
       </td>
-      <td className="py-2.5 text-right">
+      <td className="py-2.5 text-right whitespace-nowrap">
         {isEditing ? (
           <span className="flex items-center justify-end gap-1">
-            <button
-              onClick={onCancelEdit}
-              className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-muted"
-            >
+            <button onClick={onCancelEdit} className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-muted">
               Cancel
             </button>
             <button
@@ -741,16 +740,18 @@ function SortableSectionRow({
               disabled={savingSectionId === section.id}
               className="px-2 py-1 text-[12px] rounded bg-brand text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {savingSectionId === section.id ? 'Saving...' : 'Save'}
+              {savingSectionId === section.id ? 'Saving…' : 'Save'}
             </button>
           </span>
         ) : (
-          <button
-            onClick={onStartEdit}
-            className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-brand"
-          >
-            Edit
-          </button>
+          <span className="flex items-center justify-end gap-1">
+            <button onClick={onStartEdit} className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-brand">
+              Edit
+            </button>
+            <button onClick={onDelete} className="p-1.5 rounded hover:bg-red-50 text-muted hover:text-red-500 transition-colors" title="Delete section">
+              <Icons.IconTrash size={13} stroke={1.75} />
+            </button>
+          </span>
         )}
       </td>
     </tr>
@@ -772,11 +773,15 @@ function SortablePageRow({
   depth,
   onEdit,
   onDelete,
+  onTogglePublished,
+  isToggling,
 }: {
   page: PageInfo;
   depth: number;
   onEdit: () => void;
   onDelete: () => void;
+  onTogglePublished: () => void;
+  isToggling: boolean;
 }) {
   const {
     attributes,
@@ -792,6 +797,8 @@ function SortablePageRow({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  const isPublished = page.published !== false;
 
   return (
     <tr
@@ -809,34 +816,32 @@ function SortablePageRow({
           <Icons.IconGripVertical size={14} stroke={1.5} />
         </button>
       </td>
-      <td className="py-2.5 pr-3 font-medium">
-        {page.title}
-      </td>
-      <td className="py-2.5 pr-3 text-muted font-mono text-[12px]">
-        {page.path}.mdx
-      </td>
+      <td className="py-2.5 pr-3 font-medium">{page.title}</td>
       <td className="py-2.5 pr-3">
-        {page.published === false ? (
-          <span className="text-[11px] px-1.5 py-0.5 rounded bg-sidebar border border-hairline text-muted">
-            Draft
-          </span>
-        ) : (
-          <span className="text-[11px] px-1.5 py-0.5 rounded bg-brand-50 text-brand-700">
-            Published
-          </span>
-        )}
-      </td>
-      <td className="py-2.5 text-right">
         <button
-          onClick={onEdit}
-          className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-brand"
+          onClick={onTogglePublished}
+          disabled={isToggling}
+          title={isPublished ? 'Click to unpublish (make draft)' : 'Click to publish'}
+          className={`group flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full border transition-colors disabled:opacity-50 ${
+            isPublished
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600'
+              : 'bg-sidebar border-hairline text-muted hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700'
+          }`}
         >
+          {isToggling ? (
+            <Icons.IconLoader2 size={10} stroke={2} className="animate-spin" />
+          ) : (
+            <span className={`w-1.5 h-1.5 rounded-full ${isPublished ? 'bg-emerald-500 group-hover:bg-red-400' : 'bg-gray-400 group-hover:bg-emerald-500'}`} />
+          )}
+          <span className="group-hover:hidden">{isPublished ? 'Live' : 'Draft'}</span>
+          <span className="hidden group-hover:inline">{isPublished ? 'Unpublish' : 'Publish'}</span>
+        </button>
+      </td>
+      <td className="py-2.5 text-right whitespace-nowrap">
+        <button onClick={onEdit} className="px-2 py-1 text-[12px] rounded hover:bg-black/[0.04] text-brand">
           Edit
         </button>
-        <button
-          onClick={onDelete}
-          className="px-2 py-1 text-[12px] rounded hover:bg-red-50 text-red-600"
-        >
+        <button onClick={onDelete} className="px-2 py-1 text-[12px] rounded hover:bg-red-50 text-red-600">
           Delete
         </button>
       </td>
@@ -852,7 +857,7 @@ export default function Editor({
 }: {
   mode: EditorMode;
   onClose: () => void;
-  onCommit?: () => void;
+  onCommit?: (summary: string) => void;
   initialPages?: Array<{ title: string; path: string; section: string; published?: boolean; order?: number }>;
 }) {
   const router = useRouter();
@@ -904,6 +909,10 @@ export default function Editor({
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [editingSectionData, setEditingSectionData] = useState<{ label: string; icon: string; order: number; parent: string } | null>(null);
   const [savingSectionId, setSavingSectionId] = useState<string | null>(null);
+  const [newSectionForm, setNewSectionForm] = useState<{ label: string; icon: string; parent: string } | null>(null);
+  const [creatingSection, setCreatingSection] = useState(false);
+  const [togglingPublishedPath, setTogglingPublishedPath] = useState<string | null>(null);
+  const [deletingSectionId, setDeletingSectionId] = useState<string | null>(null);
 
   // Pending order changes (not yet committed)
   const [pendingPageOrders, setPendingPageOrders] = useState<Map<string, number>>(new Map());
@@ -1162,13 +1171,13 @@ export default function Editor({
   }, [mode]);
 
   useEffect(() => {
-    if (mode.kind !== 'manage' || initialPages) return;
+    if (mode.kind !== 'manage') return;
     (async () => {
       const res = await fetch('/api/pages');
       const json = await res.json();
-      setPages(json.pages || []);
+      if (json.pages) setPages(json.pages);
     })();
-  }, [mode, initialPages]);
+  }, [mode.kind]);
 
   const targetPath = useMemo(() => {
     if (mode.kind === 'edit') return mode.path;
@@ -1304,7 +1313,7 @@ export default function Editor({
       setToast(
         `Committed ${path}.mdx (${(json.commitSha as string).slice(0, 7)}). Deploying…`
       );
-      onCommit?.();
+      onCommit?.(editSummary.trim());
       setTimeout(() => {
         if (mode.kind === 'new') router.push(`/${path}`);
         else router.refresh();
@@ -1449,6 +1458,89 @@ export default function Editor({
       setError(e instanceof Error ? e.message : 'Update failed');
     } finally {
       setSavingSectionId(null);
+    }
+  }
+
+  async function togglePublished(path: string, isPublished: boolean) {
+    setTogglingPublishedPath(path);
+    // Optimistic update
+    setPages(prev => prev.map(p => p.path === path ? { ...p, published: !isPublished } : p));
+    try {
+      const token = await ensureToken();
+      if (!token) { setPages(prev => prev.map(p => p.path === path ? { ...p, published: isPublished } : p)); return; }
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle-published', token, path }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) clearStoredToken();
+        setPages(prev => prev.map(p => p.path === path ? { ...p, published: isPublished } : p));
+        throw new Error(json.error || 'Toggle failed');
+      }
+      setToast(`${json.published ? 'Published' : 'Unpublished'}: ${path}`);
+      onCommit?.(`${json.published ? 'Published' : 'Unpublished'} "${path}"`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Toggle failed');
+    } finally {
+      setTogglingPublishedPath(null);
+    }
+  }
+
+  async function createSectionFromManage(data: { label: string; icon: string; parent: string }) {
+    setCreatingSection(true);
+    setError(null);
+    const rawName = data.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const sectionId = data.parent ? `${data.parent}/${rawName}` : rawName;
+    try {
+      const token = await ensureToken();
+      if (!token) return;
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create-section', token, sectionId, label: data.label, icon: data.icon || 'folder' }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) clearStoredToken();
+        throw new Error(json.error || 'Create failed');
+      }
+      const sectionsRes = await fetch('/api/sections');
+      const sectionsJson = await sectionsRes.json();
+      if (sectionsJson.sections) setSections(sectionsJson.sections);
+      setNewSectionForm(null);
+      setToast(`Created section "${data.label}"`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Create failed');
+    } finally {
+      setCreatingSection(false);
+    }
+  }
+
+  async function deleteSectionFromManage(sectionId: string, label: string) {
+    if (!confirm(`Delete section "${label}"?\n\nThe section must be empty (no pages). This cannot be undone.`)) return;
+    setDeletingSectionId(sectionId);
+    setError(null);
+    try {
+      const token = await ensureToken();
+      if (!token) return;
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete-section', token, sectionId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) clearStoredToken();
+        throw new Error(json.error || 'Delete failed');
+      }
+      setSections(prev => prev.filter(s => s.id !== sectionId));
+      setToast(`Deleted section "${label}"`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Delete failed');
+    } finally {
+      setDeletingSectionId(null);
     }
   }
 
@@ -2378,49 +2470,60 @@ Tips:
           </div>
         ) : (
           <div className="flex-1 overflow-hidden flex flex-col">
-            {/* Tab buttons for Pages/Sections */}
-            <div className="flex gap-1 px-5 pt-4 pb-2 border-b border-hairline">
-              <button
-                onClick={() => setManageTab('pages')}
-                className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
-                  manageTab === 'pages'
-                    ? 'bg-brand text-white'
-                    : 'text-muted hover:bg-black/[0.04]'
-                }`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <Icons.IconFile size={14} stroke={1.75} />
-                  Pages
-                </span>
-              </button>
-              <button
-                onClick={() => setManageTab('sections')}
-                className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
-                  manageTab === 'sections'
-                    ? 'bg-brand text-white'
-                    : 'text-muted hover:bg-black/[0.04]'
-                }`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <Icons.IconFolder size={14} stroke={1.75} />
-                  Sections
-                </span>
-              </button>
+            {/* Tab bar */}
+            <div className="flex items-center justify-between px-5 pt-3 pb-0 border-b border-hairline">
+              <div className="flex gap-0.5">
+                {(['pages', 'sections'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setManageTab(tab)}
+                    className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium border-b-2 transition-colors -mb-px ${
+                      manageTab === tab
+                        ? 'border-brand text-brand'
+                        : 'border-transparent text-muted hover:text-ink'
+                    }`}
+                  >
+                    {tab === 'pages' ? <Icons.IconFile size={13} stroke={1.75} /> : <Icons.IconFolder size={13} stroke={1.75} />}
+                    {tab === 'pages' ? `Pages (${pages.length})` : `Sections (${sections.length})`}
+                  </button>
+                ))}
+              </div>
+              {/* Action button — right side of tab bar */}
+              {manageTab === 'pages' && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    setTimeout(() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'new' } })), 50);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 mb-1 text-[12px] font-medium rounded-md bg-brand text-white hover:bg-brand-600"
+                >
+                  <Icons.IconPlus size={13} stroke={2} />
+                  New page
+                </button>
+              )}
+              {manageTab === 'sections' && !newSectionForm && (
+                <button
+                  onClick={() => setNewSectionForm({ label: '', icon: 'folder', parent: '' })}
+                  className="flex items-center gap-1.5 px-3 py-1.5 mb-1 text-[12px] font-medium rounded-md bg-brand text-white hover:bg-brand-600"
+                >
+                  <Icons.IconPlus size={13} stroke={2} />
+                  New section
+                </button>
+              )}
             </div>
 
-            {/* Pages tab content */}
+            {/* Pages tab */}
             {manageTab === 'pages' && (
               <div className="flex-1 overflow-y-auto overscroll-contain p-5">
                 <p className="text-[12px] text-muted mb-4">
-                  Drag pages to reorder them within their section.
+                  Drag to reorder pages. Click a status badge to toggle Live / Draft without opening the editor.
                 </p>
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr className="text-left text-muted text-[11px] uppercase tracking-wide">
                       <th className="py-2 font-semibold w-8"></th>
                       <th className="py-2 font-semibold">Title</th>
-                      <th className="py-2 font-semibold">Path</th>
-                      <th className="py-2 font-semibold">Status</th>
+                      <th className="py-2 font-semibold w-24">Status</th>
                       <th className="py-2 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
@@ -2428,38 +2531,31 @@ Tips:
                     {groupedPages.map((group) => {
                       const sectionLabel = group.sectionInfo?.label || group.sectionId.split('/').pop() || group.sectionId;
                       const depth = group.sectionInfo?.depth ?? 0;
-                      const IconComponent = group.sectionInfo?.icon
-                        ? getIconComponent(group.sectionInfo.icon)
-                        : Icons.IconFolder;
-
+                      const IconComponent = group.sectionInfo?.icon ? getIconComponent(group.sectionInfo.icon) : Icons.IconFolder;
                       return (
                         <React.Fragment key={group.sectionId}>
-                          {/* Section header row */}
                           <tr className="bg-sidebar/50">
-                            <td
-                              colSpan={5}
-                              className="py-2.5 px-2 font-semibold text-[12px]"
-                              style={{ paddingLeft: 8 + depth * 16 }}
-                            >
+                            <td colSpan={4} className="py-2 px-2 font-semibold text-[12px]" style={{ paddingLeft: 8 + depth * 16 }}>
                               <span className="flex items-center gap-2">
-                                {IconComponent && <IconComponent size={14} stroke={1.75} className="text-muted" />}
+                                {IconComponent && <IconComponent size={13} stroke={1.75} className="text-muted" />}
                                 {sectionLabel}
-                                <span className="text-muted font-normal">
-                                  ({group.pages.length} {group.pages.length === 1 ? 'page' : 'pages'})
-                                </span>
+                                <span className="text-muted font-normal text-[11px]">({group.pages.length} {group.pages.length === 1 ? 'page' : 'pages'})</span>
+                                <button
+                                  onClick={() => {
+                                    onClose();
+                                    setTimeout(() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'new', defaultSection: group.sectionId } })), 50);
+                                  }}
+                                  className="ml-auto flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded text-brand hover:bg-brand-50 transition-colors"
+                                  title={`Add page to ${sectionLabel}`}
+                                >
+                                  <Icons.IconPlus size={11} stroke={2} />
+                                  Add page
+                                </button>
                               </span>
                             </td>
                           </tr>
-                          {/* Pages in this section - with drag and drop */}
-                          <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={(event) => handlePageDragEnd(group.sectionId, event)}
-                          >
-                            <SortableContext
-                              items={group.pages.map(p => p.path)}
-                              strategy={verticalListSortingStrategy}
-                            >
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event) => handlePageDragEnd(group.sectionId, event)}>
+                            <SortableContext items={group.pages.map(p => p.path)} strategy={verticalListSortingStrategy}>
                               {group.pages.map((p) => (
                                 <SortablePageRow
                                   key={p.path}
@@ -2468,15 +2564,11 @@ Tips:
                                   onEdit={() => {
                                     onClose();
                                     router.push(`/${p.path}`);
-                                    setTimeout(() => {
-                                      window.dispatchEvent(
-                                        new CustomEvent('open-editor', {
-                                          detail: { kind: 'edit', path: p.path },
-                                        })
-                                      );
-                                    }, 100);
+                                    setTimeout(() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'edit', path: p.path } })), 100);
                                   }}
-                                  onDelete={() => remove(p.path)}
+                                  onDelete={() => { remove(p.path); }}
+                                  onTogglePublished={() => { togglePublished(p.path, p.published !== false); }}
+                                  isToggling={togglingPublishedPath === p.path}
                                 />
                               ))}
                             </SortableContext>
@@ -2485,41 +2577,91 @@ Tips:
                       );
                     })}
                     {pages.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="py-6 text-center text-muted">
-                          No pages yet.
-                        </td>
-                      </tr>
+                      <tr><td colSpan={4} className="py-6 text-center text-muted">No pages yet.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
             )}
 
-            {/* Sections tab content */}
+            {/* Sections tab */}
             {manageTab === 'sections' && (
               <div className="flex-1 overflow-y-auto overscroll-contain p-5">
                 <p className="text-[12px] text-muted mb-4">
-                  Drag sections to reorder them in the sidebar. Click Edit to change label, icon, or move to a different parent.
+                  Drag to reorder sections in the sidebar. Edit to rename, change icon, or move a section under a parent.
                 </p>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleSectionDragEnd}
-                >
+
+                {/* New section form */}
+                {newSectionForm && (
+                  <div className="mb-4 p-4 rounded-lg border border-brand-200 bg-brand-50 flex flex-col gap-3">
+                    <p className="text-[13px] font-semibold text-brand-800">New section</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] font-medium text-muted uppercase tracking-wide">Name *</label>
+                        <input
+                          type="text"
+                          autoFocus
+                          value={newSectionForm.label}
+                          onChange={e => setNewSectionForm(prev => prev ? { ...prev, label: e.target.value } : null)}
+                          onKeyDown={e => { if (e.key === 'Enter' && newSectionForm.label.trim()) createSectionFromManage(newSectionForm); if (e.key === 'Escape') setNewSectionForm(null); }}
+                          placeholder="e.g. Resources"
+                          className="px-2.5 py-1.5 text-[13px] border border-brand-200 rounded-md bg-white focus:outline-none focus:border-brand-400 w-44"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] font-medium text-muted uppercase tracking-wide">Parent</label>
+                        <select
+                          value={newSectionForm.parent}
+                          onChange={e => setNewSectionForm(prev => prev ? { ...prev, parent: e.target.value } : null)}
+                          className="px-2.5 py-1.5 text-[13px] border border-brand-200 rounded-md bg-white focus:outline-none focus:border-brand-400"
+                        >
+                          <option value="">Top level</option>
+                          {sections.filter(s => s.depth === 0).map(s => (
+                            <option key={s.id} value={s.id}>Under: {s.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[11px] font-medium text-muted uppercase tracking-wide">Icon</label>
+                        <div className="flex items-center gap-1.5">
+                          {React.createElement(getIconComponent(newSectionForm.icon || 'folder'), { size: 16, stroke: 1.75, className: 'text-muted shrink-0' })}
+                          <input
+                            type="text"
+                            value={newSectionForm.icon}
+                            onChange={e => setNewSectionForm(prev => prev ? { ...prev, icon: e.target.value } : null)}
+                            placeholder="folder"
+                            className="px-2.5 py-1.5 text-[13px] border border-brand-200 rounded-md bg-white focus:outline-none focus:border-brand-400 w-28 font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => newSectionForm.label.trim() && createSectionFromManage(newSectionForm)}
+                        disabled={!newSectionForm.label.trim() || creatingSection}
+                        className="px-3 py-1.5 text-[12px] font-medium rounded-md bg-brand text-white hover:bg-brand-600 disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        {creatingSection ? <><Icons.IconLoader2 size={13} stroke={2} className="animate-spin" />Creating…</> : <>Create section</>}
+                      </button>
+                      <button onClick={() => setNewSectionForm(null)} className="px-3 py-1.5 text-[12px] rounded-md hover:bg-black/[0.04] text-muted">
+                        Cancel
+                      </button>
+                      <span className="text-[11px] text-muted ml-1">ID will be auto-generated from name</span>
+                    </div>
+                  </div>
+                )}
+
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
                   <table className="w-full text-[13px]">
                     <thead>
                       <tr className="text-left text-muted text-[11px] uppercase tracking-wide">
                         <th className="py-2 font-semibold w-8"></th>
                         <th className="py-2 font-semibold">Section</th>
-                        <th className="py-2 font-semibold w-28">Icon</th>
-                        <th className="py-2 font-semibold text-right w-32">Actions</th>
+                        <th className="py-2 font-semibold w-24">Icon</th>
+                        <th className="py-2 font-semibold text-right w-28">Actions</th>
                       </tr>
                     </thead>
-                    <SortableContext
-                      items={sections.map(s => s.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
+                    <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
                       <tbody>
                         {sections.map((s) => (
                           <SortableSectionRow
@@ -2529,25 +2671,16 @@ Tips:
                             editingSectionData={editingSectionData}
                             setEditingSectionData={setEditingSectionData}
                             savingSectionId={savingSectionId}
-                            onStartEdit={() => {
-                              setEditingSectionId(s.id);
-                              setEditingSectionData({ label: s.label, icon: s.icon || 'folder', order: s.order, parent: s.parent || '' });
-                            }}
-                            onCancelEdit={() => {
-                              setEditingSectionId(null);
-                              setEditingSectionData(null);
-                            }}
-                            onSave={() => editingSectionData && saveSection(s.id, editingSectionData)}
+                            onStartEdit={() => { setEditingSectionId(s.id); setEditingSectionData({ label: s.label, icon: s.icon || 'folder', order: s.order, parent: s.parent || '' }); }}
+                            onCancelEdit={() => { setEditingSectionId(null); setEditingSectionData(null); }}
+                            onSave={() => { if (editingSectionData) saveSection(s.id, editingSectionData); }}
+                            onDelete={() => { deleteSectionFromManage(s.id, s.label); }}
                             sections={sections}
                             getIconComponent={getIconComponent}
                           />
                         ))}
                         {sections.length === 0 && (
-                          <tr>
-                            <td colSpan={4} className="py-6 text-center text-muted">
-                              No sections yet.
-                            </td>
-                          </tr>
+                          <tr><td colSpan={4} className="py-6 text-center text-muted">No sections yet. Create your first one above.</td></tr>
                         )}
                       </tbody>
                     </SortableContext>
