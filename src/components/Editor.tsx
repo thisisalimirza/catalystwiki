@@ -1064,6 +1064,7 @@ export default function Editor({
   const [originalBodyForDiff, setOriginalBodyForDiff] = useState('');
   const [originalTitleForDiff, setOriginalTitleForDiff] = useState('');
   const [formattingWithAI, setFormattingWithAI] = useState(false);
+  const [formatConfirmOpen, setFormatConfirmOpen] = useState(false);
 
   // Load editor name from localStorage on mount
   // Lock background scroll while modal is open
@@ -2572,10 +2573,10 @@ export default function Editor({
                             ? 'bg-brand text-white border-brand'
                             : 'bg-white border-hairline hover:border-brand-200 hover:bg-brand-50 hover:text-brand text-muted'
                         }`}
-                        title="Open AI Assistant"
+                        title="Open AI chat assistant"
                       >
-                        <Icons.IconSparkles size={14} stroke={1.75} />
-                        AI
+                        <Icons.IconMessages size={14} stroke={1.75} />
+                        Ask AI
                       </button>
                     </div>
                   </div>
@@ -2614,28 +2615,12 @@ export default function Editor({
                             Link card
                           </button>
                         </div>
-
-                        <div className="ml-auto pl-2 border-l border-hairline">
-                          <button
-                            type="button"
-                            onClick={() => { formatBodyWithAI(); }}
-                            disabled={!body.trim() || formattingWithAI}
-                            title="Format your free-written text into structured MDX using AI"
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-brand-50 text-brand hover:bg-brand-100 transition-colors text-[12px] font-medium disabled:opacity-40 whitespace-nowrap"
-                          >
-                            {formattingWithAI
-                              ? <Icons.IconLoader2 size={14} stroke={1.75} className="animate-spin" />
-                              : <Icons.IconSparkles size={14} stroke={1.75} />
-                            }
-                            {formattingWithAI ? 'Formatting…' : 'Format with AI'}
-                          </button>
-                        </div>
                       </div>
 
                       <textarea
                         ref={textareaRef}
                         value={body}
-                        onChange={(e) => setBody(e.target.value)}
+                        onChange={(e) => { setBody(e.target.value); setFormatConfirmOpen(false); }}
                         spellCheck={false}
                         onKeyDown={(e) => {
                           if (e.metaKey || e.ctrlKey) {
@@ -2656,14 +2641,65 @@ export default function Editor({
                             ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100'
                             : 'border-hairline bg-[#FBFAF7]'
                         }`}
-                        placeholder="Just write naturally — no need to worry about formatting.
+                        placeholder="Don't know MDX? Just write freely in plain English — describe what this page should say, paste in notes, or write bullet points.
 
-Describe what this page should cover in plain language, then click 'Format with AI' in the toolbar and it will structure everything for you automatically.
+When you're done, use the '✨ Format with AI' button that appears below to automatically convert your text into a structured wiki page.
 
-Or, if you prefer to format manually:
-• Use ## Heading for section titles
-• Use the toolbar above to add bold, lists, callouts, and more"
+Or use the toolbar above if you prefer to format manually."
                       />
+
+                      {/* Format with AI banner — only shown when there's content */}
+                      {body.trim() && (
+                        <div className={`rounded-md border transition-all ${
+                          formatConfirmOpen
+                            ? 'border-brand-200 bg-brand-50'
+                            : 'border-hairline bg-sidebar'
+                        }`}>
+                          {!formatConfirmOpen ? (
+                            <button
+                              type="button"
+                              onClick={() => setFormatConfirmOpen(true)}
+                              disabled={formattingWithAI}
+                              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[12px] hover:bg-black/[0.03] transition-colors rounded-md disabled:opacity-50"
+                            >
+                              <Icons.IconSparkles size={14} stroke={1.75} className="text-brand shrink-0" />
+                              <span className="text-ink font-medium">Format with AI</span>
+                              <span className="text-muted ml-1">— converts your plain text into structured wiki formatting</span>
+                            </button>
+                          ) : (
+                            <div className="px-3 py-3 flex items-start gap-3">
+                              <Icons.IconSparkles size={15} stroke={1.75} className="text-brand shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[12px] text-ink font-medium mb-0.5">Format your text as a wiki page?</p>
+                                <p className="text-[11px] text-muted mb-2.5">
+                                  AI will add headings, bullet points, and callouts based on what you wrote. Your original text is preserved and you&apos;ll review all changes before saving.
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => { setFormatConfirmOpen(false); formatBodyWithAI(); }}
+                                    disabled={formattingWithAI}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 disabled:opacity-50"
+                                  >
+                                    {formattingWithAI
+                                      ? <><Icons.IconLoader2 size={13} stroke={2} className="animate-spin" /> Formatting…</>
+                                      : <>Format now <Icons.IconArrowRight size={12} stroke={2} /></>
+                                    }
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormatConfirmOpen(false)}
+                                    className="px-3 py-1.5 rounded-md text-[12px] text-muted hover:bg-black/[0.04]"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div className="text-[11px] text-muted flex items-center gap-3 flex-wrap">
                         <span>
                           <kbd className="px-1 py-0.5 bg-sidebar rounded text-[10px]">Ctrl+B</kbd> Bold
