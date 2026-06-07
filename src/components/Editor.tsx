@@ -1171,13 +1171,13 @@ export default function Editor({
   }, [mode]);
 
   useEffect(() => {
-    if (mode.kind !== 'manage' || initialPages) return;
+    if (mode.kind !== 'manage') return;
     (async () => {
       const res = await fetch('/api/pages');
       const json = await res.json();
-      setPages(json.pages || []);
+      if (json.pages) setPages(json.pages);
     })();
-  }, [mode, initialPages]);
+  }, [mode.kind]);
 
   const targetPath = useMemo(() => {
     if (mode.kind === 'edit') return mode.path;

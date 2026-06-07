@@ -53,6 +53,7 @@ export default async function WikiPageRoute({ params }: { params: Promise<{ path
     path: p.path,
     section: p.frontmatter.section,
     published: p.frontmatter.published,
+    order: p.frontmatter.order ?? 999,
   }));
 
   const sectionLabel = getSectionLabel(page.frontmatter.section);
