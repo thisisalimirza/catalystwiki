@@ -1064,7 +1064,7 @@ export default function Editor({
   const [originalBodyForDiff, setOriginalBodyForDiff] = useState('');
   const [originalTitleForDiff, setOriginalTitleForDiff] = useState('');
   const [formattingWithAI, setFormattingWithAI] = useState(false);
-  const [formatConfirmOpen, setFormatConfirmOpen] = useState(false);
+  const [selectionPopup, setSelectionPopup] = useState<{ x: number; y: number } | null>(null);
 
   // Load editor name from localStorage on mount
   // Lock background scroll while modal is open
@@ -2020,8 +2020,16 @@ export default function Editor({
     setTimeout(() => setAiApplyFlash(false), 1400);
   }
 
-  async function formatBodyWithAI() {
-    if (!body.trim()) return;
+  async function formatSelectionWithAI() {
+    const textarea = textareaRef.current;
+    const selStart = textarea?.selectionStart ?? 0;
+    const selEnd = textarea?.selectionEnd ?? 0;
+    const hasSelection = selStart !== selEnd;
+    const textToFormat = hasSelection ? body.slice(selStart, selEnd) : body;
+
+    if (!textToFormat.trim()) return;
+    setSelectionPopup(null);
+
     const tok = await ensureToken();
     if (!tok) return;
 
@@ -2036,7 +2044,7 @@ export default function Editor({
           token: tok,
           messages: [{
             role: 'user',
-            content: `Format the following content as a proper wiki page. Keep every piece of information — just organize it into clean MDX with appropriate headings (##), bullet points, and formatting. Use callout boxes for anything that deserves special emphasis. Do not add or invent content that isn't present.\n\n${body}`,
+            content: `Format the following content as wiki markup. Keep every piece of information — just organize it into clean MDX with appropriate headings (##), bullet points, and formatting. Use callout boxes for anything that deserves special emphasis. Do not add or invent content that isn't present.\n\n${textToFormat}`,
           }],
           sections: sections.map(s => ({ id: s.id, label: s.label })),
         }),
@@ -2061,20 +2069,23 @@ export default function Editor({
       const contentMatch = fullText.match(/\[WIKI_CONTENT_START\]([\s\S]*?)\[WIKI_CONTENT_END\]/);
       if (!contentMatch) throw new Error('AI did not return formatted content — try again.');
 
+      const formatted = contentMatch[1].trim();
       setOriginalBodyForDiff(body);
       setOriginalTitleForDiff(title);
-      setBody(contentMatch[1].trim());
+      setBody(hasSelection ? body.slice(0, selStart) + formatted + body.slice(selEnd) : formatted);
       setIsAIGenerated(true);
       setAiApplyFlash(true);
       setTimeout(() => setAiApplyFlash(false), 1400);
 
-      const metaMatch = fullText.match(/\[WIKI_META_START\]([\s\S]*?)\[WIKI_META_END\]/);
-      if (metaMatch) {
-        try {
-          const meta = JSON.parse(metaMatch[1].trim()) as { title?: string; icon?: string; section?: string };
-          if (meta.title && !title) setTitle(meta.title);
-          if (meta.icon) setIcon(meta.icon);
-        } catch { /* ignore bad meta */ }
+      if (!hasSelection) {
+        const metaMatch = fullText.match(/\[WIKI_META_START\]([\s\S]*?)\[WIKI_META_END\]/);
+        if (metaMatch) {
+          try {
+            const meta = JSON.parse(metaMatch[1].trim()) as { title?: string; icon?: string };
+            if (meta.title && !title) setTitle(meta.title);
+            if (meta.icon) setIcon(meta.icon);
+          } catch { /* ignore bad meta */ }
+        }
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'AI formatting failed');
@@ -2620,8 +2631,22 @@ export default function Editor({
                       <textarea
                         ref={textareaRef}
                         value={body}
-                        onChange={(e) => { setBody(e.target.value); setFormatConfirmOpen(false); }}
+                        onChange={(e) => { setBody(e.target.value); setSelectionPopup(null); }}
                         spellCheck={false}
+                        onMouseUp={(e) => {
+                          const ta = textareaRef.current;
+                          if (!ta) return;
+                          if (ta.selectionStart !== ta.selectionEnd) {
+                            setSelectionPopup({ x: e.clientX, y: e.clientY });
+                          } else {
+                            setSelectionPopup(null);
+                          }
+                        }}
+                        onKeyUp={() => {
+                          const ta = textareaRef.current;
+                          if (!ta || ta.selectionStart === ta.selectionEnd) setSelectionPopup(null);
+                        }}
+                        onBlur={() => setTimeout(() => setSelectionPopup(null), 150)}
                         onKeyDown={(e) => {
                           if (e.metaKey || e.ctrlKey) {
                             if (e.key === 'b') {
@@ -2641,64 +2666,12 @@ export default function Editor({
                             ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100'
                             : 'border-hairline bg-[#FBFAF7]'
                         }`}
-                        placeholder="Don't know MDX? Just write freely in plain English — describe what this page should say, paste in notes, or write bullet points.
+                        placeholder="Don't know MDX? Just write freely in plain English.
 
-When you're done, use the '✨ Format with AI' button that appears below to automatically convert your text into a structured wiki page.
+Write your notes, bullet points, or paragraphs — then select any text (or Ctrl+A for everything) and a 'Format with AI' button will appear to structure it automatically.
 
 Or use the toolbar above if you prefer to format manually."
                       />
-
-                      {/* Format with AI banner — only shown when there's content */}
-                      {body.trim() && (
-                        <div className={`rounded-md border transition-all ${
-                          formatConfirmOpen
-                            ? 'border-brand-200 bg-brand-50'
-                            : 'border-hairline bg-sidebar'
-                        }`}>
-                          {!formatConfirmOpen ? (
-                            <button
-                              type="button"
-                              onClick={() => setFormatConfirmOpen(true)}
-                              disabled={formattingWithAI}
-                              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[12px] hover:bg-black/[0.03] transition-colors rounded-md disabled:opacity-50"
-                            >
-                              <Icons.IconSparkles size={14} stroke={1.75} className="text-brand shrink-0" />
-                              <span className="text-ink font-medium">Format with AI</span>
-                              <span className="text-muted ml-1">— converts your plain text into structured wiki formatting</span>
-                            </button>
-                          ) : (
-                            <div className="px-3 py-3 flex items-start gap-3">
-                              <Icons.IconSparkles size={15} stroke={1.75} className="text-brand shrink-0 mt-0.5" />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[12px] text-ink font-medium mb-0.5">Format your text as a wiki page?</p>
-                                <p className="text-[11px] text-muted mb-2.5">
-                                  AI will add headings, bullet points, and callouts based on what you wrote. Your original text is preserved and you&apos;ll review all changes before saving.
-                                </p>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => { setFormatConfirmOpen(false); formatBodyWithAI(); }}
-                                    disabled={formattingWithAI}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand text-white text-[12px] font-medium hover:bg-brand-600 disabled:opacity-50"
-                                  >
-                                    {formattingWithAI
-                                      ? <><Icons.IconLoader2 size={13} stroke={2} className="animate-spin" /> Formatting…</>
-                                      : <>Format now <Icons.IconArrowRight size={12} stroke={2} /></>
-                                    }
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setFormatConfirmOpen(false)}
-                                    className="px-3 py-1.5 rounded-md text-[12px] text-muted hover:bg-black/[0.04]"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
 
                       <div className="text-[11px] text-muted flex items-center gap-3 flex-wrap">
                         <span>
@@ -3159,6 +3132,36 @@ Or use the toolbar above if you prefer to format manually."
           </div>
         </footer>
         </div>{/* end main editor column */}
+
+        {/* Format with AI floating popup — appears on text selection in the textarea */}
+        {selectionPopup && activeTab === 'edit' && (
+          <div
+            style={{
+              position: 'fixed',
+              top: selectionPopup.y - 48,
+              left: selectionPopup.x,
+              transform: 'translateX(-50%)',
+            }}
+            className="z-[300] flex items-center gap-1.5 bg-gray-900 text-white text-[12px] font-medium px-3 py-2 rounded-lg shadow-xl pointer-events-auto"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {formattingWithAI ? (
+              <>
+                <Icons.IconLoader2 size={13} stroke={2} className="animate-spin" />
+                Formatting…
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={formatSelectionWithAI}
+                className="flex items-center gap-1.5 hover:text-brand-200 transition-colors"
+              >
+                <Icons.IconSparkles size={13} stroke={1.75} />
+                Format with AI
+              </button>
+            )}
+          </div>
+        )}
 
         {/* AI Assistant panel */}
         {showAI && (
