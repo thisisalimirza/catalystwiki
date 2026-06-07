@@ -34,6 +34,134 @@ import { PAGE_TEMPLATES, type PageTemplate } from '@/lib/templates';
 import AIAssistant, { type AIApplyPayload } from './AIAssistant';
 import DiffReview from './DiffReview';
 
+// ─── Demo MDX template for the Import modal ──────────────────────────────────
+const DEMO_MDX = `---
+title: My Page Title
+section: overview
+published: true
+---
+
+Welcome! This file is a template that shows you everything you can do when writing wiki pages. Delete this intro and replace everything below with your own content.
+
+When you're done, save the file with a **.mdx** extension and upload it using the Import Pages button.
+
+---
+
+## Text Formatting
+
+You can make text **bold** by wrapping it in \`**double asterisks**\`, or *italic* with \`*single asterisks*\`. You can also [add a hyperlink](https://example.com) by putting the link text in square brackets followed by the URL in parentheses.
+
+---
+
+## Headings
+
+Use \`##\` for main section headings and \`###\` for sub-headings. Avoid using \`#\` (single hash) — that's reserved for the page title which is set in the frontmatter at the top.
+
+### This is a sub-heading
+
+Sub-headings help break long sections into scannable chunks.
+
+---
+
+## Lists
+
+**Bullet list** — start each line with a hyphen:
+
+- First item
+- Second item
+- Third item
+
+**Numbered list** — start each line with a number:
+
+1. Step one
+2. Step two
+3. Step three
+
+---
+
+## Callouts
+
+Callouts are coloured highlight boxes. There are four types — just change the \`type\` value.
+
+<Callout type="info" title="Info — for general context">
+Use this for background information, definitions, or anything that adds helpful context without being urgent.
+</Callout>
+
+<Callout type="tip" title="Tip — for helpful suggestions">
+Use this for pro tips, shortcuts, or best practices that make someone's life easier.
+</Callout>
+
+<Callout type="warning" title="Warning — for things to watch out for">
+Use this when something could go wrong, cause confusion, or needs extra attention before proceeding.
+</Callout>
+
+<Callout type="success" title="Success — for confirmations">
+Use this to confirm something is complete, working, or that the reader is all set to move on.
+</Callout>
+
+---
+
+## Link Cards
+
+Link cards are clickable cards that point to other pages or external resources. Great for "related pages" or "next steps" sections.
+
+**Internal link** (to another page in this wiki — use the path starting with /):
+
+<LinkCard href="/overview/welcome" title="Welcome page" description="The main welcome page for fellows." icon="home" />
+
+**External link** (full URL):
+
+<LinkCard href="https://notion.so" title="Our Notion workspace" description="Project tracking, meeting notes, and team docs." icon="brand-notion" />
+
+The \`icon\` field accepts any name from the Tabler icon set (tabler.io/icons) — just use the icon name without the "Icon" prefix, e.g. \`rocket\`, \`book\`, \`calendar\`, \`star\`.
+
+---
+
+## People
+
+Use PersonRow to display a team member. Great for directory or contact pages.
+
+<PersonRow name="Ali Mirza" role="Program Director" email="ali@example.com" slack="alimirza" />
+
+<PersonRow name="Jane Smith" role="Operations Lead" email="jane@example.com" />
+
+The \`slack\` field is optional. The \`email\` field is also optional.
+
+---
+
+## Tables
+
+| Column One | Column Two | Column Three |
+|------------|------------|--------------|
+| Row 1 A    | Row 1 B    | Row 1 C      |
+| Row 2 A    | Row 2 B    | Row 2 C      |
+
+---
+
+## About the frontmatter
+
+The block at the very top of this file (between the \`---\` lines) is called frontmatter. It tells the wiki about your page:
+
+- \`title\` — the page title shown in the sidebar and at the top of the page
+- \`section\` — which section the page belongs to (you can change this in the import modal)
+- \`published\` — set to \`false\` to save as a draft that only editors can see
+
+You don't need to include frontmatter — the import tool will generate it automatically from your filename and the section you choose.
+`;
+
+function downloadDemoMdx() {
+  const blob = new Blob([DEMO_MDX], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'wiki-template.mdx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Section info from API
 interface SectionInfo {
   id: string;
@@ -1963,7 +2091,23 @@ export default function Editor({
                     className="hidden"
                   />
                 </label>
+
+                {/* Download template */}
+                <button
+                  onClick={downloadDemoMdx}
+                  className="flex items-center gap-2 px-4 py-2 border border-hairline rounded-md text-[13px] font-medium text-muted hover:text-ink hover:border-brand-300 hover:bg-brand-50 transition-colors"
+                >
+                  <Icons.IconDownload size={16} stroke={1.75} />
+                  Download template
+                </button>
               </div>
+
+              {/* Template hint */}
+              {importFiles.length === 0 && (
+                <p className="text-[12px] text-muted -mt-2">
+                  New to MDX? Download the template above — it includes examples of every formatting option and component you can use.
+                </p>
+              )}
 
               {/* File list */}
               {importFiles.length === 0 ? (
