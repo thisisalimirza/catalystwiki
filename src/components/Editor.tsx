@@ -2488,7 +2488,19 @@ Tips:
                   </button>
                 ))}
               </div>
-              {/* New section button — only on sections tab */}
+              {/* Action button — right side of tab bar */}
+              {manageTab === 'pages' && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    setTimeout(() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'new' } })), 50);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 mb-1 text-[12px] font-medium rounded-md bg-brand text-white hover:bg-brand-600"
+                >
+                  <Icons.IconPlus size={13} stroke={2} />
+                  New page
+                </button>
+              )}
               {manageTab === 'sections' && !newSectionForm && (
                 <button
                   onClick={() => setNewSectionForm({ label: '', icon: 'folder', parent: '' })}
@@ -2528,6 +2540,17 @@ Tips:
                                 {IconComponent && <IconComponent size={13} stroke={1.75} className="text-muted" />}
                                 {sectionLabel}
                                 <span className="text-muted font-normal text-[11px]">({group.pages.length} {group.pages.length === 1 ? 'page' : 'pages'})</span>
+                                <button
+                                  onClick={() => {
+                                    onClose();
+                                    setTimeout(() => window.dispatchEvent(new CustomEvent('open-editor', { detail: { kind: 'new', defaultSection: group.sectionId } })), 50);
+                                  }}
+                                  className="ml-auto flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded text-brand hover:bg-brand-50 transition-colors"
+                                  title={`Add page to ${sectionLabel}`}
+                                >
+                                  <Icons.IconPlus size={11} stroke={2} />
+                                  Add page
+                                </button>
                               </span>
                             </td>
                           </tr>
