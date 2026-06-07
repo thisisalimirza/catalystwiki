@@ -1063,6 +1063,7 @@ export default function Editor({
   const [showDiffReview, setShowDiffReview] = useState(false);
   const [originalBodyForDiff, setOriginalBodyForDiff] = useState('');
   const [originalTitleForDiff, setOriginalTitleForDiff] = useState('');
+  const [formattingWithAI, setFormattingWithAI] = useState(false);
 
   // Load editor name from localStorage on mount
   // Lock background scroll while modal is open
@@ -2018,6 +2019,69 @@ export default function Editor({
     setTimeout(() => setAiApplyFlash(false), 1400);
   }
 
+  async function formatBodyWithAI() {
+    if (!body.trim()) return;
+    const tok = await ensureToken();
+    if (!tok) return;
+
+    setFormattingWithAI(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: tok,
+          messages: [{
+            role: 'user',
+            content: `Format the following content as a proper wiki page. Keep every piece of information — just organize it into clean MDX with appropriate headings (##), bullet points, and formatting. Use callout boxes for anything that deserves special emphasis. Do not add or invent content that isn't present.\n\n${body}`,
+          }],
+          sections: sections.map(s => ({ id: s.id, label: s.label })),
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || 'AI formatting failed');
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let fullText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      const contentMatch = fullText.match(/\[WIKI_CONTENT_START\]([\s\S]*?)\[WIKI_CONTENT_END\]/);
+      if (!contentMatch) throw new Error('AI did not return formatted content — try again.');
+
+      setOriginalBodyForDiff(body);
+      setOriginalTitleForDiff(title);
+      setBody(contentMatch[1].trim());
+      setIsAIGenerated(true);
+      setAiApplyFlash(true);
+      setTimeout(() => setAiApplyFlash(false), 1400);
+
+      const metaMatch = fullText.match(/\[WIKI_META_START\]([\s\S]*?)\[WIKI_META_END\]/);
+      if (metaMatch) {
+        try {
+          const meta = JSON.parse(metaMatch[1].trim()) as { title?: string; icon?: string; section?: string };
+          if (meta.title && !title) setTitle(meta.title);
+          if (meta.icon) setIcon(meta.icon);
+        } catch { /* ignore bad meta */ }
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'AI formatting failed');
+    } finally {
+      setFormattingWithAI(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-3 py-6">
       <div
@@ -2550,6 +2614,22 @@ export default function Editor({
                             Link card
                           </button>
                         </div>
+
+                        <div className="ml-auto pl-2 border-l border-hairline">
+                          <button
+                            type="button"
+                            onClick={() => { formatBodyWithAI(); }}
+                            disabled={!body.trim() || formattingWithAI}
+                            title="Format your free-written text into structured MDX using AI"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-brand-50 text-brand hover:bg-brand-100 transition-colors text-[12px] font-medium disabled:opacity-40 whitespace-nowrap"
+                          >
+                            {formattingWithAI
+                              ? <Icons.IconLoader2 size={14} stroke={1.75} className="animate-spin" />
+                              : <Icons.IconSparkles size={14} stroke={1.75} />
+                            }
+                            {formattingWithAI ? 'Formatting…' : 'Format with AI'}
+                          </button>
+                        </div>
                       </div>
 
                       <textarea
@@ -2576,12 +2656,13 @@ export default function Editor({
                             ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100'
                             : 'border-hairline bg-[#FBFAF7]'
                         }`}
-                        placeholder="Start writing your page content here...
+                        placeholder="Just write naturally — no need to worry about formatting.
 
-Tips:
-• Use ## Heading for section titles (shows in table of contents)
-• Use the toolbar above to format text
-• Select text first, then click Bold or Italic to format it"
+Describe what this page should cover in plain language, then click 'Format with AI' in the toolbar and it will structure everything for you automatically.
+
+Or, if you prefer to format manually:
+• Use ## Heading for section titles
+• Use the toolbar above to add bold, lists, callouts, and more"
                       />
                       <div className="text-[11px] text-muted flex items-center gap-3 flex-wrap">
                         <span>
