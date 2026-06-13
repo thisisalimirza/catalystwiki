@@ -2,9 +2,13 @@
 title: "Google HAI-DEF — Health AI Developer Foundations"
 section: build-with-ai
 icon: heart-rate-monitor
-updatedAt: "June 3, 2026"
+updatedAt: "June 12, 2026"
 published: true
-order: 3
+updatedBy: "Alice Yu"
+editHistory:
+  - name: "Alice Yu"
+    date: "June 12, 2026"
+    summary: "Removing inaccurate HAIDEF info"
 ---
 
 <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google" style={{height: '30px', marginBottom: '12px', display: 'block'}} />
@@ -36,7 +40,7 @@ MedGemma is the generative flagship of HAI-DEF — Gemma 3 models fine-tuned ext
 
 **Strengths:** Clinical Q&A, note summarization, differential diagnosis support, image description, multilingual clinical communication.
 
-**Access:** [Vertex AI Model Garden](https://cloud.google.com/vertex-ai) · [Hugging Face](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def) · [Google AI Studio](https://aistudio.google.com)
+**Access:**  [Hugging Face](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def) · [Google AI Studio](https://aistudio.google.com)
 
 → See the [MedGemma deep-dive guide](/build-with-ai/medgemma-guide) for prompting tips and code examples.
 
@@ -139,16 +143,10 @@ All HAI-DEF models are free and open under the HAI-DEF license (research and com
 **Option 1: Google AI Studio (fastest, no setup)**
 Go to [aistudio.google.com](https://aistudio.google.com) and select a MedGemma model. No credentials required. Great for initial exploration.
 
-**Option 2: Vertex AI Model Garden (recommended for MVP builds)**
-1. Sign up for a Google Cloud account (free tier works to start)
-2. Email catalyst@mdplus.community with "HAI-DEF access request — [Team name]"
-3. The HAI-DEF team will provision Vertex AI access with your fellowship credentials
-4. Access any HAI-DEF model via the [Vertex AI API](https://cloud.google.com/vertex-ai)
-
-**Option 3: Hugging Face (open weights, run anywhere)**
+**Option 2: Hugging Face (open weights, run anywhere)**
 All open-weight models are available on Hugging Face at the [HAI-DEF collection](https://huggingface.co/collections/google/health-ai-developer-foundations-hai-def). Run locally, on Google Colab, or via Hugging Face's Inference API. More technical, but no Google Cloud account required.
 
-**Option 4: Colab notebooks**
+**Option 3: Colab notebooks**
 HAI-DEF ships instructional Colab notebooks for each model — you can run them directly in your browser with zero local setup. Find them at [goo.gle/hai-def](https://goo.gle/hai-def).
 
 ## Licensing
@@ -158,11 +156,9 @@ All HAI-DEF models are released under the **HAI-DEF license** — open and free 
 ## Support from the HAI-DEF team
 
 As a Catalyst fellow, you have direct access to the Google HAI-DEF team:
-
-- **#google-hidef** Slack channel — Post technical questions directly to the HAI-DEF team
-- **Office hours** — Request a slot via your program facilitator; the HAI-DEF team has committed to being available for fellows
+- **Office hours** — We will post a signup sheet for 15-20 minute office hours with the HAI-DEF engineering team in the #catalyst-fellows slack channel.  
 - **HAI-DEF forum** — [discuss.ai.google.dev](https://discuss.ai.google.dev) — public developer community
 
 <Callout type="info" title="New to HAI-DEF? Start here.">
-If your project involves medical imaging, start with **CXR Foundation** (chest X-rays), **Derm Foundation** (skin), or **Path Foundation** (pathology) depending on your domain. If you need conversational AI with clinical knowledge, start with **MedGemma 4B**. When in doubt, post in **#google-hidef** in Slack — the team is responsive and wants to help Catalyst fellows succeed.
+If your project involves medical imaging, start with **CXR Foundation** (chest X-rays), **Derm Foundation** (skin), or **Path Foundation** (pathology) depending on your domain. If you need conversational AI with clinical knowledge, start with **MedGemma 4B**. 
 </Callout>
