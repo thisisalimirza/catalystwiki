@@ -977,6 +977,34 @@ function SortablePageRow({
   );
 }
 
+// Custom components that use opening + closing tags. KEEP IN SYNC with
+// src/components/MdxComponents.tsx and src/lib/mdxLint.mjs.
+const PAIRED_COMPONENTS = ['Callout', 'LinkCard', 'PersonRow'];
+
+// Lightweight, instant check for the single most common way editors break the
+// build: unbalanced <Callout>/<LinkCard>/<PersonRow> tags. Runs as you type so
+// you see the problem before you ever hit Save. (The server does the full,
+// authoritative check on save — this is just early, friendly warning.)
+function checkTagBalance(body: string): string[] {
+  // Ignore anything inside ``` code blocks or `inline code` so examples don't trip it.
+  const text = body
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]*`/g, '');
+  const warnings: string[] = [];
+  for (const name of PAIRED_COMPONENTS) {
+    const open = (text.match(new RegExp(`<${name}(?=[\\s/>])`, 'g')) || []).length;
+    const close = (text.match(new RegExp(`</${name}>`, 'g')) || []).length;
+    if (open > close) {
+      const n = open - close;
+      warnings.push(`${n} <${name}> ${n === 1 ? 'box is' : 'boxes are'} opened but not closed — add ${n === 1 ? 'a' : n} matching </${name}> tag${n === 1 ? '' : 's'}.`);
+    } else if (close > open) {
+      const n = close - open;
+      warnings.push(`${n} </${name}> closing tag${n === 1 ? '' : 's'} ${n === 1 ? 'has' : 'have'} no matching <${name}> above — remove ${n === 1 ? 'it' : 'them'} or add the opening tag.`);
+    }
+  }
+  return warnings;
+}
+
 export default function Editor({
   mode,
   onClose,
@@ -1004,6 +1032,7 @@ export default function Editor({
   const [toast, setToast] = useState<string | null>(null);
   const [pages, setPages] = useState(initialPages ?? []);
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const tagWarnings = useMemo(() => checkTagBalance(body), [body]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [initialValues, setInitialValues] = useState({ title: '', body: '', icon: 'file' });
   const [draftRestored, setDraftRestored] = useState(false);
@@ -1384,6 +1413,11 @@ export default function Editor({
     if (!editSummary.trim()) {
       setSummaryMissing(true);
       setError('Please add a brief summary of your changes');
+      return;
+    }
+    if (tagWarnings.length > 0) {
+      setActiveTab('edit');
+      setError(`This page can't be saved yet — it would break the site:\n\n${tagWarnings.join('\n')}`);
       return;
     }
 
@@ -2673,6 +2707,20 @@ Write your notes, bullet points, or paragraphs — then select any text (or Ctrl
 Or use the toolbar above if you prefer to format manually."
                       />
 
+                      {tagWarnings.length > 0 && (
+                        <div className="mt-2 px-3 py-2.5 rounded-md border border-amber-300 bg-amber-50 text-[12px] text-amber-900">
+                          <div className="flex items-center gap-1.5 font-medium mb-1">
+                            <Icons.IconAlertTriangle size={15} stroke={2} />
+                            Heads up — please fix this before saving:
+                          </div>
+                          <ul className="list-disc pl-5 space-y-0.5">
+                            {tagWarnings.map((w, i) => (
+                              <li key={i}>{w}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
                       <div className="text-[11px] text-muted flex items-center gap-3 flex-wrap">
                         <span>
                           <kbd className="px-1 py-0.5 bg-sidebar rounded text-[10px]">Ctrl+B</kbd> Bold
@@ -2926,9 +2974,9 @@ Or use the toolbar above if you prefer to format manually."
         )}
 
         {error && (
-          <div className="mx-5 mb-2 text-[12px] text-red-600 flex items-center gap-1">
-            <Icons.IconAlertCircle size={13} stroke={1.75} />
-            {error}
+          <div className="mx-5 mb-2 text-[12px] text-red-600 flex items-start gap-1">
+            <Icons.IconAlertCircle size={13} stroke={1.75} className="mt-0.5 shrink-0" />
+            <span className="whitespace-pre-line">{error}</span>
           </div>
         )}
         {toast && (

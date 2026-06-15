@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkPassword, issueToken, verifyToken } from '@/lib/auth';
 import { commitFile, deleteFile, getFileContent, listDirectoryFiles, batchCommitFiles } from '@/lib/github';
 import { isValidPath, sectionExists, getSectionMeta } from '@/lib/content';
+import { lintMdx } from '@/lib/mdxLint.mjs';
+
+// Turn a lint result into a single human-readable message for the editor UI.
+function formatLintErrors(result: Awaited<ReturnType<typeof lintMdx>>): string {
+  return result.errors
+    .map((e) => (e.line ? `Line ${e.line}: ${e.message}` : e.message))
+    .join('\n\n');
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -48,6 +56,19 @@ export async function POST(req: NextRequest) {
       }
       if (typeof body.content !== 'string' || body.content.length === 0) {
         return NextResponse.json({ error: 'Empty content' }, { status: 400 });
+      }
+      // Hard gate: never commit content that would break the production build.
+      // Compiling here is exactly what Vercel does, so anything that fails build
+      // is caught now — with a plain-English explanation — instead of after deploy.
+      const lint = await lintMdx(body.content);
+      if (!lint.ok) {
+        return NextResponse.json(
+          {
+            error: `This page can't be saved yet — it would break the site:\n\n${formatLintErrors(lint)}`,
+            validation: lint.errors,
+          },
+          { status: 422 }
+        );
       }
       const filePath = `content/${body.path}.mdx`;
       const result = await commitFile({
