@@ -2,10 +2,13 @@
 title: "MedGemma — Deep Dive"
 section: build-with-ai
 icon: stethoscope
-updatedAt: "June 12, 2026"
+updatedAt: "June 15, 2026"
 published: true
 updatedBy: "Alice Yu"
 editHistory:
+  - name: "Alice Yu"
+    date: "June 15, 2026"
+    summary: "Added workshop slides and technical forum links"
   - name: "Alice Yu"
     date: "June 12, 2026"
     summary: "Removed inaccurate Vertex AI info"
@@ -17,6 +20,8 @@ MedGemma is the generative model flagship within the [Google HAI-DEF](/build-wit
 <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google" style={{height: '28px', marginBottom: '8px', display: 'block'}} />
 
 Google's foundation models for health care and life sciences are open and free, available for both research and commercial purposes under the HAI-DEF license. [Read more about Health AI Developer Foundations (HAI-DEF)](https://goo.gle/hai-def) at goo.gle/hai-def.
+
+View the Catalyst x HAI-DEF workshop slides: [Workshop Slides](https://drive.google.com/file/d/1SrPVddMo9HwUtoU8s6slIb8P2uGv1Y_a/view?pli=1)
 </Callout>
 
 ## What makes MedGemma different
@@ -54,7 +59,7 @@ For most Catalyst MVPs, **MedGemma 4B** is a great starting point — it's fast 
 MedGemma is also available as an open-weight model on Hugging Face. You can run it locally or via Hugging Face's Inference API. This is more technical but doesn't require a Google Cloud account. See the [Hugging Face MedGemma page](https://huggingface.co/google/medgemma-4b-it).
 
 <Callout type="info" title="Open weights = you can run it yourself">
-Unlike Claude (which is only available via Anthropic's API), MedGemma is an open-weight model — meaning Google has released the model weights so anyone can run it. This means you can run it on your own hardware, on Google Colab, or via Hugging Face — not just through a proprietary API. For a fellowship MVP, the Vertex AI route is easiest.
+Unlike Claude (which is only available via Anthropic's API), MedGemma is an open-weight model — meaning Google has released the model weights so anyone can run it. This means you can run it on your own hardware, on Google Colab, or via Hugging Face — not just through a proprietary API. 
 </Callout>
 
 ## What MedGemma is best at
@@ -135,5 +140,8 @@ Question: [clinical question]
 - [MedGemma on Hugging Face](https://huggingface.co/google/medgemma-4b-it) — Model weights and documentation
 - [Google Vertex AI documentation](https://cloud.google.com/vertex-ai/docs) — API access via Google Cloud
 - [Google AI Studio](https://aistudio.google.com) — Browser-based testing
-- **#google-hidef** Slack channel — Direct access to Google HAI-DEF team for technical questions
-- We will have office hours with the Google HAI-DEF team. See #catalyst-fellows slack channel for signup sheet for 15-20 minutes with the engineers.
+- [Developer Forum](https://discuss.ai.google.dev/c/hai-def/) - For deeper technical support 
+- [HIPAA Compliance](https://cloud.google.com/security/compliance/hipaa#covered-products) - View HIPAA compliance of cloud products
+
+
+- We will have office hours with the Google HAI-DEF team. See #catalyst-fellows slack channel for signup sheet for 15 minutes with the engineers.
