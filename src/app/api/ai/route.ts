@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
 
   if (body.currentPageContext) {
     const ctx = body.currentPageContext;
-    systemPrompt += `\n\n## Page Currently Being Edited\nTitle: ${ctx.title}\nSection: ${ctx.section}\nCurrent content (first 2000 chars):\n\`\`\`\n${ctx.body.slice(0, 2000)}\n\`\`\``;
+    systemPrompt += `\n\n## Page Currently Being Edited\nTitle: ${ctx.title}\nSection: ${ctx.section}\nCurrent content:\n\`\`\`\n${ctx.body}\n\`\`\``;
   }
 
   let messages = [...body.messages];
